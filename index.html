@@ -456,10 +456,24 @@
           body: JSON.stringify({ message })
         });
         
-        const data = await res.text();
+        let data;
+        
+        // Проверяем тип ответа
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const jsonData = await res.json();
+          data = jsonData.message || jsonData.response || jsonData.text || JSON.stringify(jsonData);
+        } else {
+          data = await res.text();
+        }
         
         // Типинг индикаторын жасыру
         hideTypingIndicator();
+        
+        // Проверяем, что ответ не пустой и не "accepted"
+        if (!data || data.trim() === '' || data.toLowerCase() === 'accepted') {
+          data = 'Кешіріңіз, жауап алынбады. Қайталап көріңіз.';
+        }
         
         // Боттың жауабын көрсету
         const botMsg = document.createElement('div');
