@@ -1,22 +1,149 @@
 <!DOCTYPE html>
-<html>
-  <head><title>GreenBot</title></head>
-  <body>
-    <textarea id="input"></textarea>
-    <button onclick="send()">Send</button>
-    <div id="response"></div>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <title>GreenBot 🤖</title>
+  <style>
+    body {
+      background-color: #001a00;
+      color: #00ff88;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
 
-    <script>
-      async function send() {
-        const message = document.getElementById("input").value;
+    header {
+      background-color: #003300;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #00ff88;
+      box-shadow: 0 2px 10px #00ff88;
+    }
+
+    #chat-box {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background-color: #002200;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 12px;
+      line-height: 1.4;
+    }
+
+    .user {
+      align-self: flex-end;
+      background-color: #005500;
+      color: #ffffff;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background-color: #00aa55;
+      color: #001a00;
+    }
+
+    #input-area {
+      display: flex;
+      padding: 15px;
+      background-color: #001a00;
+      border-top: 1px solid #00ff88;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      background-color: #002200;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    #send-btn {
+      background-color: #00ff88;
+      color: #001a00;
+      border: none;
+      padding: 10px 20px;
+      margin-left: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    #send-btn:hover {
+      background-color: #00cc66;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🤖 GreenBot — AI көмекшің</header>
+
+  <div id="chat-box">
+    <div class="message bot">Сәлем! Мен — GreenBot. Қандай сұрағың бар?</div>
+  </div>
+
+  <div id="input-area">
+    <input type="text" id="user-input" placeholder="Хабарлама жаз..." />
+    <button id="send-btn" onclick="sendMessage()">Жіберу</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Пайдаланушы хабарламасын көрсету
+      const chatBox = document.getElementById('chat-box');
+      const userMsg = document.createElement('div');
+      userMsg.className = 'message user';
+      userMsg.textContent = message;
+      chatBox.appendChild(userMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Жіберу
+      input.value = '';
+      input.disabled = true;
+
+      try {
         const res = await fetch("https://hook.eu2.make.com/4crgw0g7k5uu2lt2mwou7jhgt7ya70o7", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message })
         });
+
         const data = await res.text();
-        document.getElementById("response").innerText = data;
+
+        // Боттың жауабын көрсету
+        const botMsg = document.createElement('div');
+        botMsg.className = 'message bot';
+        botMsg.textContent = data;
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+      } catch (e) {
+        const botMsg = document.createElement('div');
+        botMsg.className = 'message bot';
+        botMsg.textContent = "⚠️ Қате: жауап алынбады.";
+        chatBox.appendChild(botMsg);
       }
-    </script>
-  </body>
+
+      input.disabled = false;
+    }
+  </script>
+</body>
 </html>
