@@ -1,876 +1,811 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GreenBot 🤖</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: linear-gradient(145deg, #001a00 0%, #002a00 50%, #001a00 100%);
-      color: #00ff88;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    /* Анимированный фон */
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
-      animation: pulse 4s ease-in-out infinite alternate;
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 0.3; }
-      100% { opacity: 0.8; }
-    }
-
-    header {
-      background: linear-gradient(90deg, #003300, #004400, #003300);
-      padding: 20px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      color: #00ff88;
-      box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-
-    header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
-      animation: shimmer 3s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
-    }
-
-    .bot-status {
-      font-size: 14px;
-      margin-top: 8px;
-      opacity: 0.8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    .status-indicator {
-      width: 8px;
-      height: 8px;
-      background: #00ff88;
-      border-radius: 50%;
-      animation: heartbeat 1.5s infinite;
-    }
-
-    @keyframes heartbeat {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
-
-    #chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-width: 1200px;
-      margin: 0 auto;
-      width: 100%;
-      padding: 0 20px;
-    }
-
-    #chat-box {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      background: linear-gradient(180deg, rgba(0, 34, 0, 0.3) 0%, rgba(0, 34, 0, 0.5) 100%);
-      backdrop-filter: blur(10px);
-      border-radius: 20px 20px 0 0;
-      margin-bottom: 0;
-      scrollbar-width: thin;
-      scrollbar-color: #00ff88 #002200;
-    }
-
-    #chat-box::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    #chat-box::-webkit-scrollbar-track {
-      background: rgba(0, 34, 0, 0.3);
-      border-radius: 10px;
-    }
-
-    #chat-box::-webkit-scrollbar-thumb {
-      background: #00ff88;
-      border-radius: 10px;
-    }
-
-    .message {
-      max-width: 75%;
-      padding: 15px 20px;
-      border-radius: 20px;
-      line-height: 1.5;
-      position: relative;
-      animation: messageSlide 0.3s ease-out;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    @keyframes messageSlide {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #005500, #007700);
-      color: #ffffff;
-      border-bottom-right-radius: 5px;
-    }
-
-    .user::before {
-      content: '👤';
-      position: absolute;
-      right: -10px;
-      top: -10px;
-      background: #007700;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .bot {
-      align-self: flex-start;
-      background: linear-gradient(135deg, #00aa55, #00cc66);
-      color: #001a00;
-      border-bottom-left-radius: 5px;
-      font-weight: 500;
-    }
-
-    .bot::before {
-      content: '🤖';
-      position: absolute;
-      left: -10px;
-      top: -10px;
-      background: #00cc66;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    }
-
-    .typing-indicator {
-      align-self: flex-start;
-      background: linear-gradient(135deg, #00aa55, #00cc66);
-      color: #001a00;
-      border-radius: 20px;
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      animation: messageSlide 0.3s ease-out;
-    }
-
-    .typing-dot {
-      width: 8px;
-      height: 8px;
-      background: #001a00;
-      border-radius: 50%;
-      animation: typing 1.4s infinite;
-    }
-
-    .typing-dot:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .typing-dot:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-
-    @keyframes typing {
-      0%, 60%, 100% {
-        transform: translateY(0);
-      }
-      30% {
-        transform: translateY(-10px);
-      }
-    }
-
-    #input-area {
-      display: flex;
-      align-items: center;
-      padding: 20px;
-      background: linear-gradient(90deg, rgba(0, 34, 0, 0.8), rgba(0, 34, 0, 0.9));
-      backdrop-filter: blur(10px);
-      border-radius: 0 0 20px 20px;
-      gap: 15px;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
-      flex-wrap: wrap; /* Added for responsiveness */
-    }
-
-    #user-input {
-      flex: 1;
-      padding: 15px 20px;
-      background: rgba(0, 34, 0, 0.8);
-      color: #00ff88;
-      border: 2px solid rgba(0, 255, 136, 0.3);
-      border-radius: 25px;
-      font-size: 16px;
-      outline: none;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
-      min-width: 150px; /* Ensure input doesn't shrink too much */
-    }
-
-    #user-input:focus {
-      border-color: #00ff88;
-      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-      transform: scale(1.02);
-    }
-
-    #user-input::placeholder {
-      color: rgba(0, 255, 136, 0.6);
-    }
-
-    #send-btn, .scroll-btn { /* Added .scroll-btn */
-      background: linear-gradient(135deg, #00ff88, #00cc66);
-      color: #001a00;
-      border: none;
-      padding: 15px 25px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 16px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    #send-btn:hover, .scroll-btn:hover { /* Added .scroll-btn */
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
-    }
-
-    #send-btn:active, .scroll-btn:active { /* Added .scroll-btn */
-      transform: translateY(0);
-    }
-
-    #send-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .send-icon {
-      font-size: 18px;
-      transition: transform 0.3s ease;
-    }
-
-    #send-btn:hover .send-icon {
-      transform: translateX(3px);
-    }
-
-    .scroll-btn {
-        width: 45px; /* Make them smaller and round */
-        height: 45px;
-        padding: 0;
-        border-radius: 50%; /* Make them perfectly round */
-        justify-content: center;
-        align-items: center;
-        font-size: 20px;
-        box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GreenBot 🤖</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .scroll-btn:hover {
-        transform: scale(1.05); /* Slightly bigger on hover */
-        box-shadow: 0 6px 15px rgba(0, 255, 136, 0.4);
+    body {
+      background: linear-gradient(145deg, #001a00 0%, #002a00 50%, #001a00 100%);
+      color: #00ff88;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    /* Group scroll buttons */
-    .scroll-buttons-group {
-        display: flex;
-        gap: 10px;
-        margin-left: auto; /* Push to the right */
+    /* Анимированный фон */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
+      animation: pulse 4s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: -1;
     }
 
-    /* Адаптивность */
-    @media (max-width: 768px) {
-      #chat-container {
-        padding: 0 10px;
-      }
-      
-      header {
-        font-size: 24px;
-        padding: 15px;
-      }
-      
-      .message {
-        max-width: 85%;
-        padding: 12px 16px;
-      }
-      
-      #input-area {
-        padding: 15px;
-        gap: 10px;
-        flex-direction: column; /* Stack elements vertically */
-        align-items: stretch; /* Stretch items to full width */
-      }
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.8; }
+    }
 
-      #user-input {
-        width: 100%; /* Full width on small screens */
-        margin-bottom: 5px;
+    header {
+      background: linear-gradient(90deg, #003300, #004400, #003300);
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      color: #00ff88;
+      box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    .bot-status {
+      font-size: 14px;
+      margin-top: 8px;
+      opacity: 0.8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      background: #00ff88;
+      border-radius: 50%;
+      animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    #chat-box {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: linear-gradient(180deg, rgba(0, 34, 0, 0.3) 0%, rgba(0, 34, 0, 0.5) 100%);
+      backdrop-filter: blur(10px);
+      border-radius: 20px 20px 0 0;
+      margin-bottom: 0;
+      scrollbar-width: thin;
+      scrollbar-color: #00ff88 #002200;
+    }
+
+    #chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #chat-box::-webkit-scrollbar-track {
+      background: rgba(0, 34, 0, 0.3);
+      border-radius: 10px;
+    }
+
+    #chat-box::-webkit-scrollbar-thumb {
+      background: #00ff88;
+      border-radius: 10px;
+    }
+
+    .message {
+      max-width: 75%;
+      padding: 15px 20px;
+      border-radius: 20px;
+      line-height: 1.5;
+      position: relative;
+      animation: messageSlide 0.3s ease-out;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes messageSlide {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
       }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-      #send-btn {
-        width: 100%; /* Full width on small screens */
+    .user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #005500, #007700);
+      color: #ffffff;
+      border-bottom-right-radius: 5px;
+    }
+
+    .user::before {
+      content: '👤';
+      position: absolute;
+      right: -10px;
+      top: -10px;
+      background: #007700;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: linear-gradient(135deg, #00aa55, #00cc66);
+      color: #001a00;
+      border-bottom-left-radius: 5px;
+      font-weight: 500;
+    }
+
+    .bot::before {
+      content: '🤖';
+      position: absolute;
+      left: -10px;
+      top: -10px;
+      background: #00cc66;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .typing-indicator {
+      align-self: flex-start;
+      background: linear-gradient(135deg, #00aa55, #00cc66);
+      color: #001a00;
+      border-radius: 20px;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      animation: messageSlide 0.3s ease-out;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #001a00;
+      border-radius: 50%;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-10px);
+      }
+    }
+
+    #input-area {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      background: linear-gradient(90deg, rgba(0, 34, 0, 0.8), rgba(0, 34, 0, 0.9));
+      backdrop-filter: blur(10px);
+      border-radius: 0 0 20px 20px;
+      gap: 15px;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 15px 20px;
+      background: rgba(0, 34, 0, 0.8);
+      color: #00ff88;
+      border: 2px solid rgba(0, 255, 136, 0.3);
+      border-radius: 25px;
+      font-size: 16px;
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    #user-input:focus {
+      border-color: #00ff88;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+      transform: scale(1.02);
+    }
+
+    #user-input::placeholder {
+      color: rgba(0, 255, 136, 0.6);
+    }
+
+    #send-btn {
+      background: linear-gradient(135deg, #00ff88, #00cc66);
+      color: #001a00;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
+    }
+
+    #send-btn:active {
+      transform: translateY(0);
+    }
+
+    #send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .send-icon {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+    }
+
+    #send-btn:hover .send-icon {
+      transform: translateX(3px);
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      #chat-container {
+        padding: 0 10px;
       }
       
-      .scroll-buttons-group {
-        width: 100%; /* Full width for the group */
-        justify-content: space-around; /* Distribute buttons */
-        margin-left: 0; /* Remove auto margin */
+      header {
+        font-size: 24px;
+        padding: 15px;
       }
+      
+      .message {
+        max-width: 85%;
+        padding: 12px 16px;
+      }
+      
+      #input-area {
+        padding: 15px;
+        gap: 10px;
+      }
+      
+      #user-input {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      #send-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
 
-      #send-btn, .scroll-btn { /* Added .scroll-btn */
-        padding: 12px 20px;
-        font-size: 14px;
-      }
-    }
+    /* Дополнительные эффекты */
+    .glow-effect {
+      position: relative;
+    }
 
-    /* Дополнительные эффекты */
-    .glow-effect {
-      position: relative;
-    }
+    .glow-effect::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: inherit;
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+      animation: glow 2s ease-in-out infinite alternate;
+      z-index: -1;
+    }
 
-    .glow-effect::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: inherit;
-      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
-      animation: glow 2s ease-in-out infinite alternate;
-      z-index: -1;
-    }
+    @keyframes glow {
+      from { box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
+      to { box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
+    }
 
-    @keyframes glow {
-      from { box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
-      to { box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
-    }
+    /* Стили для выбора языка */
+    .language-selector {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+    }
 
-    /* Стили для выбора языка */
-    .language-selector {
-      position: absolute;
-      top: 15px;
-      right: 20px;
-    }
+    #language-select {
+      background: rgba(0, 34, 0, 0.8);
+      color: #00ff88;
+      border: 2px solid rgba(0, 255, 136, 0.3);
+      border-radius: 15px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
 
-    #language-select {
-      background: rgba(0, 34, 0, 0.8);
-      color: #00ff88;
-      border: 2px solid rgba(0, 255, 136, 0.3);
-      border-radius: 15px;
-      padding: 8px 12px;
-      font-size: 14px;
-      cursor: pointer;
-      outline: none;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
-    }
+    #language-select:hover {
+      border-color: #00ff88;
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
 
-    #language-select:hover {
-      border-color: #00ff88;
-      box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-    }
+    #language-select option {
+      background: #001a00;
+      color: #00ff88;
+    }
 
-    #language-select option {
-      background: #001a00;
-      color: #00ff88;
-    }
+    /* Стили для блоков кода */
+    .code-block {
+      background: #001a00;
+      border: 1px solid #00ff88;
+      border-radius: 10px;
+      margin: 10px 0;
+      position: relative;
+      overflow: hidden;
+    }
 
-    /* Стили для блоков кода */
-    .code-block {
-      background: #001a00;
-      border: 1px solid #00ff88;
-      border-radius: 10px;
-      margin: 10px 0;
-      position: relative;
-      overflow: hidden;
-    }
+    .code-header {
+      background: #00ff88;
+      color: #001a00;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-    .code-header {
-      background: #00ff88;
-      color: #001a00;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    .copy-btn {
+      background: transparent;
+      border: 1px solid #001a00;
+      color: #001a00;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      transition: all 0.2s ease;
+    }
 
-    .copy-btn {
-      background: transparent;
-      border: 1px solid #001a00;
-      color: #001a00;
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 11px;
-      transition: all 0.2s ease;
-    }
+    .copy-btn:hover {
+      background: #001a00;
+      color: #00ff88;
+    }
 
-    .copy-btn:hover {
-      background: #001a00;
-      color: #00ff88;
-    }
+    .copy-btn.copied {
+      background: #004400;
+      color: #ffffff;
+      border-color: #004400;
+    }
 
-    .copy-btn.copied {
-      background: #004400;
-      color: #ffffff;
-      border-color: #004400;
-    }
+    .code-content {
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #00ff88;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+    }
 
-    .code-content {
-      padding: 15px;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      line-height: 1.4;
-      color: #00ff88;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-x: auto;
-    }
+    .code-content::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
 
-    .code-content::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
+    .code-content::-webkit-scrollbar-track {
+      background: rgba(0, 34, 0, 0.3);
+      border-radius: 3px;
+    }
 
-    .code-content::-webkit-scrollbar-track {
-      background: rgba(0, 34, 0, 0.3);
-      border-radius: 3px;
-    }
-
-    .code-content::-webkit-scrollbar-thumb {
-      background: #00ff88;
-      border-radius: 3px;
-    }
-  </style>
+    .code-content::-webkit-scrollbar-thumb {
+      background: #00ff88;
+      border-radius: 3px;
+    }
+  </style>
 </head>
 <body>
-  <header class="glow-effect">
-    🤖 GreenBot — ваш AI помощник
-    <div class="bot-status">
-      <div class="status-indicator"></div>
-      <span id="status-text">Онлайн и готов к работе</span>
-    </div>
-    <div class="language-selector">
-      <select id="language-select">
-        <option value="ru">🇷🇺 Русский</option>
-        <option value="kk">🇰🇿 Қазақша</option>
-        <option value="en">🇺🇸 English</option>
-      </select>
-    </div>
-  </header>
-  
-  <div id="chat-container">
-    <div id="chat-box">
-      <div class="message bot">
-        Привет! Я — GreenBot 🌱<br>
-        Как могу помочь? Задавайте любые вопросы!
-      </div>
-    </div>
-    
-    <div id="input-area">
-      <input type="text" id="user-input" placeholder="Напишите сообщение..." />
-      <button id="send-btn" onclick="sendMessage()">
-        <span class="send-icon">📤</span>
-        <span id="send-text">Отправить</span>
-      </button>
-      <div class="scroll-buttons-group">
-        <button id="scroll-top-btn" class="scroll-btn" onclick="scrollToTop()">⬆️</button>
-        <button id="scroll-bottom-btn" class="scroll-btn" onclick="scrollToBottom()">⬇️</button>
+  <header class="glow-effect">
+    🤖 GreenBot — ваш AI помощник
+    <div class="bot-status">
+      <div class="status-indicator"></div>
+      <span id="status-text">Онлайн и готов к работе</span>
+    </div>
+    <div class="language-selector">
+      <select id="language-select">
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="kk">🇰🇿 Қазақша</option>
+        <option value="en">🇺🇸 English</option>
+      </select>
+    </div>
+  </header>
+  
+  <div id="chat-container">
+    <div id="chat-box">
+      <div class="message bot">
+        Привет! Я — GreenBot 🌱<br>
+        Как могу помочь? Задавайте любые вопросы!
       </div>
-    </div>
-  </div>
+    </div>
+    
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Напишите сообщение..." />
+      <button id="send-btn" onclick="sendMessage()">
+        <span class="send-icon">📤</span>
+        <span id="send-text">Отправить</span>
+      </button>
+    </div>
+  </div>
 
-  <script>
-    // Переводы для разных языков
-    const translations = {
-      ru: {
-        title: "🤖 GreenBot — ваш AI помощник",
-        status: "Онлайн и готов к работе",
-        placeholder: "Напишите сообщение...",
-        send: "Отправить",
-        sending: "Отправляется...",
-        greeting: "Привет! Я — GreenBot 🌱<br>Как могу помочь? Задавайте любые вопросы!",
-        error: "⚠️ <strong>Произошла ошибка:</strong><br>Проверьте интернет-соединение или попробуйте позже.",
-        noResponse: "Извините, ответ не получен. Попробуйте еще раз."
-      },
-      kk: {
-        title: "🤖 GreenBot — AI көмекшің",
-        status: "Онлайн және дайын",
-        placeholder: "Хабарлама жазыңыз...",
-        send: "Жіберу",
-        sending: "Жіберілуде...",
-        greeting: "Сәлем! Мен — GreenBot 🌱<br>Сізге қалай көмектесе аламын? Кез келген сұрақ қоя аласыз!",
-        error: "⚠️ <strong>Қате орын алды:</strong><br>Интернет байланысын тексеріңіз немесе кейінірек қайталаңыз.",
-        noResponse: "Кешіріңіз, жауап алынбады. Қайталап көріңіз."
-      },
-      en: {
-        title: "🤖 GreenBot — your AI assistant",
-        status: "Online and ready to help",
-        placeholder: "Type your message...",
-        send: "Send",
-        sending: "Sending...",
-        greeting: "Hello! I'm GreenBot 🌱<br>How can I help you? Feel free to ask any questions!",
-        error: "⚠️ <strong>Error occurred:</strong><br>Check your internet connection or try again later.",
-        noResponse: "Sorry, no response received. Please try again."
-      }
-    };
+  <script>
+    // Переводы для разных языков
+    const translations = {
+      ru: {
+        title: "🤖 GreenBot — ваш AI помощник",
+        status: "Онлайн и готов к работе",
+        placeholder: "Напишите сообщение...",
+        send: "Отправить",
+        sending: "Отправляется...",
+        greeting: "Привет! Я — GreenBot 🌱<br>Как могу помочь? Задавайте любые вопросы!",
+        error: "⚠️ <strong>Произошла ошибка:</strong><br>Проверьте интернет-соединение или попробуйте позже.",
+        noResponse: "Извините, ответ не получен. Попробуйте еще раз."
+      },
+      kk: {
+        title: "🤖 GreenBot — AI көмекшің",
+        status: "Онлайн және дайын",
+        placeholder: "Хабарлама жазыңыз...",
+        send: "Жіберу",
+        sending: "Жіберілуде...",
+        greeting: "Сәлем! Мен — GreenBot 🌱<br>Сізге қалай көмектесе аламын? Кез келген сұрақ қоя аласыз!",
+        error: "⚠️ <strong>Қате орын алды:</strong><br>Интернет байланысын тексеріңіз немесе кейінірек қайталаңыз.",
+        noResponse: "Кешіріңіз, жауап алынбады. Қайталап көріңіз."
+      },
+      en: {
+        title: "🤖 GreenBot — your AI assistant",
+        status: "Online and ready to help",
+        placeholder: "Type your message...",
+        send: "Send",
+        sending: "Sending...",
+        greeting: "Hello! I'm GreenBot 🌱<br>How can I help you? Feel free to ask any questions!",
+        error: "⚠️ <strong>Error occurred:</strong><br>Check your internet connection or try again later.",
+        noResponse: "Sorry, no response received. Please try again."
+      }
+    };
 
-    let currentLanguage = 'ru';
+    let currentLanguage = 'ru';
 
-    // Функция для смены языка
-    function changeLanguage(lang) {
-      currentLanguage = lang;
-      const t = translations[lang];
-      
-      // Обновляем элементы интерфейса
-      document.querySelector('header').innerHTML = `
-        ${t.title}
-        <div class="bot-status">
-          <div class="status-indicator"></div>
-          <span id="status-text">${t.status}</span>
-        </div>
-        <div class="language-selector">
-          <select id="language-select">
-            <option value="ru" ${lang === 'ru' ? 'selected' : ''}>🇷🇺 Русский</option>
-            <option value="kk" ${lang === 'kk' ? 'selected' : ''}>🇰🇿 Қазақша</option>
-            <option value="en" ${lang === 'en' ? 'selected' : ''}>🇺🇸 English</option>
-          </select>
-        </div>
-      `;
-      
-      document.getElementById('user-input').placeholder = t.placeholder;
-      document.getElementById('send-text').textContent = t.send;
-      
-      // Обновляем приветственное сообщение
-      const firstBotMessage = document.querySelector('.message.bot');
-      if (firstBotMessage) {
-        firstBotMessage.innerHTML = t.greeting;
-      }
-      
-      // Переназначаем обработчик для нового селектора
-      document.getElementById('language-select').addEventListener('change', function(e) {
-        changeLanguage(e.target.value);
-      });
-    }
-
-    // Инициализация обработчика смены языка
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('language-select').addEventListener('change', function(e) {
-        changeLanguage(e.target.value);
-      });
-    });
-
-    // Отправка сообщения по нажатию Enter
-    document.getElementById('user-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
-    });
-
-    // Показать индикатор печати
-    function showTypingIndicator() {
-      const chatBox = document.getElementById('chat-box');
-      const typingDiv = document.createElement('div');
-      typingDiv.className = 'typing-indicator';
-      typingDiv.id = 'typing-indicator';
-      typingDiv.innerHTML = `
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      `;
-      chatBox.appendChild(typingDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    // Скрыть индикатор печати
-    function hideTypingIndicator() {
-      const typingIndicator = document.getElementById('typing-indicator');
-      if (typingIndicator) {
-        typingIndicator.remove();
-      }
-    }
-
-    // Функция для форматирования сообщений с кодом
-    function formatMessage(text) {
-      // Регулярное выражение для поиска блоков кода
-      const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
-      const inlineCodeRegex = /`([^`]+)`/g;
-      
-      let formattedText = text;
-      
-      // Замена блоков кода
-      formattedText = formattedText.replace(codeBlockRegex, (match, lang, code) => {
-        const language = lang || 'код';
-        const codeId = 'code_' + Math.random().toString(36).substr(2, 9);
-        return `<div class="code-block">
-          <div class="code-header">
-            <span>${language}</span>
-            <button class="copy-btn" onclick="copyCode('${codeId}')">Копировать</button>
-          </div>
-          <div class="code-content" id="${codeId}">${code.trim()}</div>
-        </div>`;
-      });
-      
-      // Замена инлайн кода
-      formattedText = formattedText.replace(inlineCodeRegex, '<code style="background: rgba(0, 255, 136, 0.1); padding: 2px 4px; border-radius: 3px; font-family: monospace;">$1</i></code>');
-      
-      return formattedText;
-    }
-
-    // Функция для копирования кода
-    function copyCode(codeId) {
-      const codeElement = document.getElementById(codeId);
-      const text = codeElement.textContent;
-      
-      navigator.clipboard.writeText(text).then(() => {
-        // Находим кнопку копирования
-        const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
-        const originalText = copyBtn.textContent;
-        
-        // Меняем текст на "Скопировано!"
-        copyBtn.textContent = 'Скопировано!';
-        copyBtn.classList.add('copied');
-        
-        // Возвращаем исходный текст через 2 секунды
-        setTimeout(() => {
-          copyBtn.textContent = originalText;
-          copyBtn.classList.remove('copied');
-        }, 2000);
-      }).catch(err => {
-        console.error('Ошибка при копировании:', err);
-        // Fallback для старых браузеров
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
-        copyBtn.textContent = 'Скопировано!';
-        copyBtn.classList.add('copied');
-        setTimeout(() => {
-          copyBtn.textContent = 'Копировать';
-          copyBtn.classList.remove('copied');
-        }, 2000);
-      });
-    }
-    function extractContent(data) {
-      // Если данные - строка
-      if (typeof data === 'string') {
-        // Проверяем, не является ли это JSON-строкой
-        try {
-          const parsed = JSON.parse(data);
-          return extractContent(parsed);
-        } catch (e) {
-          // Если не JSON, возвращаем как есть
-          return data;
-        }
-      }
-      
-      // Если данные - объект
-      if (typeof data === 'object' && data !== null) {
-        // Ищем поле content
-        if (data.content) {
-          return data.content;
-        }
-        
-        // Ищем поле message
-        if (data.message) {
-          return data.message;
-        }
-        
-        // Ищем поле response
-        if (data.response) {
-          return data.response;
-        }
-        
-        // Ищем поле text
-        if (data.text) {
-          return data.text;
-        }
-        
-        // Если данные - это массив, берем первый элемент
-        if (Array.isArray(data) && data.length > 0) {
-          return extractContent(data[0]);
-        }
-      }
-      
-      // Если ничего не найдено, возвращаем null
-      return null;
-    }
-
-    async function sendMessage() {
-      const input = document.getElementById('user-input');
-      const sendBtn = document.getElementById('send-btn');
-      const message = input.value.trim();
-      
-      if (!message) return;
-
-      // Показать сообщение пользователя
-      const chatBox = document.getElementById('chat-box');
-      const userMsg = document.createElement('div');
-      userMsg.className = 'message user';
-      userMsg.textContent = message;
-      chatBox.appendChild(userMsg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-      // Очистить поле ввода и заблокировать
-      input.value = '';
-      input.disabled = true;
-      sendBtn.disabled = true;
-      sendBtn.innerHTML = `<span class="send-icon">⏳</span> <span>${translations[currentLanguage].sending}</span>`;
-
-      // Показать индикатор печати
-      showTypingIndicator();
-
-      try {
-        const res = await fetch("https://hook.eu2.make.com/4crgw0g7k5uu2lt2mwou7jhgt7ya70o7", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message })
-        });
-        
-        let data;
-        
-        // Проверяем тип ответа
-        const contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const jsonData = await res.json();
-          console.log('Полученные данные:', jsonData); // Для отладки
-          
-          // Извлекаем контент с помощью функции
-          data = extractContent(jsonData);
-        } else {
-          // Если это текст, тоже пытаемся извлечь контент
-          const textData = await res.text();
-          console.log('Полученный текст:', textData); // Для отладки
-          data = extractContent(textData);
-        }
-        
-        // Скрыть индикатор печати
-        hideTypingIndicator();
-        
-        // Если контент не найден, используем fallback
-        if (!data || data.trim() === '' || data.toLowerCase() === 'accepted') {
-          data = translations[currentLanguage].noResponse;
-          console.log('Не удалось извлечь контент');
-        }
-        
-        // Показать ответ бота
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot';
-        botMsg.innerHTML = formatMessage(data);
-        chatBox.appendChild(botMsg);
-        chatBox.scrollTop = chatBox.scrollHeight;
-        
-      } catch (e) {
-        console.error('Ошибка:', e); // Для отладки
-        hideTypingIndicator();
-        
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot';
-        botMsg.innerHTML = translations[currentLanguage].error;
-        chatBox.appendChild(botMsg);
-        chatBox.scrollTop = chatBox.scrollHeight;
-      }
-
-      // Разблокировать поле ввода
-      input.disabled = false;
-      sendBtn.disabled = false;
-      sendBtn.innerHTML = `<span class="send-icon">📤</span> <span id="send-text">${translations[currentLanguage].send}</span>`;
-      input.focus();
-    }
-
-    // --- New Scroll Functions ---
-
-    /**
-     * Scrolls the chat box to the very top.
-     */
-    function scrollToTop() {
-        const chatBox = document.getElementById('chat-box');
-        chatBox.scrollTo({
-            top: 0,
-            behavior: 'smooth' // Smooth scrolling
-        });
+    // Функция для смены языка
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      const t = translations[lang];
+      
+      // Обновляем элементы интерфейса
+      document.querySelector('header').innerHTML = `
+        ${t.title}
+        <div class="bot-status">
+          <div class="status-indicator"></div>
+          <span id="status-text">${t.status}</span>
+        </div>
+        <div class="language-selector">
+          <select id="language-select">
+            <option value="ru" ${lang === 'ru' ? 'selected' : ''}>🇷🇺 Русский</option>
+            <option value="kk" ${lang === 'kk' ? 'selected' : ''}>🇰🇿 Қазақша</option>
+            <option value="en" ${lang === 'en' ? 'selected' : ''}>🇺🇸 English</option>
+          </select>
+        </div>
+      `;
+      
+      document.getElementById('user-input').placeholder = t.placeholder;
+      document.getElementById('send-text').textContent = t.send;
+      
+      // Обновляем приветственное сообщение
+      const firstBotMessage = document.querySelector('.message.bot');
+      if (firstBotMessage) {
+        firstBotMessage.innerHTML = t.greeting;
+      }
+      
+      // Переназначаем обработчик для нового селектора
+      document.getElementById('language-select').addEventListener('change', function(e) {
+        changeLanguage(e.target.value);
+      });
     }
 
-    /**
-     * Scrolls the chat box to the very bottom.
-     */
-    function scrollToBottom() {
-        const chatBox = document.getElementById('chat-box');
-        chatBox.scrollTo({
-            top: chatBox.scrollHeight,
-            behavior: 'smooth' // Smooth scrolling
-        });
+    // Инициализация обработчика смены языка
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('language-select').addEventListener('change', function(e) {
+        changeLanguage(e.target.value);
+      });
+    });
+
+    // Отправка сообщения по нажатию Enter
+    document.getElementById('user-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // Показать индикатор печати
+    function showTypingIndicator() {
+      const chatBox = document.getElementById('chat-box');
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing-indicator';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      `;
+      chatBox.appendChild(typingDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Фокус на поле ввода при загрузке страницы
-    window.addEventListener('load', function() {
-      document.getElementById('user-input').focus();
-    });
-  </script>
+    // Скрыть индикатор печати
+    function hideTypingIndicator() {
+      const typingIndicator = document.getElementById('typing-indicator');
+      if (typingIndicator) {
+        typingIndicator.remove();
+      }
+    }
+
+    // Функция для форматирования сообщений с кодом
+    function formatMessage(text) {
+      // Регулярное выражение для поиска блоков кода
+      const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
+      const inlineCodeRegex = /`([^`]+)`/g;
+      
+      let formattedText = text;
+      
+      // Замена блоков кода
+      formattedText = formattedText.replace(codeBlockRegex, (match, lang, code) => {
+        const language = lang || 'код';
+        const codeId = 'code_' + Math.random().toString(36).substr(2, 9);
+        return `<div class="code-block">
+          <div class="code-header">
+            <span>${language}</span>
+            <button class="copy-btn" onclick="copyCode('${codeId}')">Копировать</button>
+          </div>
+          <div class="code-content" id="${codeId}">${code.trim()}</div>
+        </div>`;
+      });
+      
+      // Замена инлайн кода
+      formattedText = formattedText.replace(inlineCodeRegex, '<code style="background: rgba(0, 255, 136, 0.1); padding: 2px 4px; border-radius: 3px; font-family: monospace;">$1</code>');
+      
+      return formattedText;
+    }
+
+    // Функция для копирования кода
+    function copyCode(codeId) {
+      const codeElement = document.getElementById(codeId);
+      const text = codeElement.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        // Находим кнопку копирования
+        const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
+        const originalText = copyBtn.textContent;
+        
+        // Меняем текст на "Скопировано!"
+        copyBtn.textContent = 'Скопировано!';
+        copyBtn.classList.add('copied');
+        
+        // Возвращаем исходный текст через 2 секунды
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Ошибка при копировании:', err);
+        // Fallback для старых браузеров
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        
+        const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
+        copyBtn.textContent = 'Скопировано!';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = 'Копировать';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+    function extractContent(data) {
+      // Если данные - строка
+      if (typeof data === 'string') {
+        // Проверяем, не является ли это JSON-строкой
+        try {
+          const parsed = JSON.parse(data);
+          return extractContent(parsed);
+        } catch (e) {
+          // Если не JSON, возвращаем как есть
+          return data;
+        }
+      }
+      
+      // Если данные - объект
+      if (typeof data === 'object' && data !== null) {
+        // Ищем поле content
+        if (data.content) {
+          return data.content;
+        }
+        
+        // Ищем поле message
+        if (data.message) {
+          return data.message;
+        }
+        
+        // Ищем поле response
+        if (data.response) {
+          return data.response;
+        }
+        
+        // Ищем поле text
+        if (data.text) {
+          return data.text;
+        }
+        
+        // Если данные - это массив, берем первый элемент
+        if (Array.isArray(data) && data.length > 0) {
+          return extractContent(data[0]);
+        }
+      }
+      
+      // Если ничего не найдено, возвращаем null
+      return null;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const sendBtn = document.getElementById('send-btn');
+      const message = input.value.trim();
+      
+      if (!message) return;
+
+      // Показать сообщение пользователя
+      const chatBox = document.getElementById('chat-box');
+      const userMsg = document.createElement('div');
+      userMsg.className = 'message user';
+      userMsg.textContent = message;
+      chatBox.appendChild(userMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Очистить поле ввода и заблокировать
+      input.value = '';
+      input.disabled = true;
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = `<span class="send-icon">⏳</span> <span>${translations[currentLanguage].sending}</span>`;
+
+      // Показать индикатор печати
+      showTypingIndicator();
+
+      try {
+        const res = await fetch("https://hook.eu2.make.com/4crgw0g7k5uu2lt2mwou7jhgt7ya70o7", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+        
+        let data;
+        
+        // Проверяем тип ответа
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const jsonData = await res.json();
+          console.log('Полученные данные:', jsonData); // Для отладки
+          
+          // Извлекаем контент с помощью функции
+          data = extractContent(jsonData);
+        } else {
+          // Если это текст, тоже пытаемся извлечь контент
+          const textData = await res.text();
+          console.log('Полученный текст:', textData); // Для отладки
+          data = extractContent(textData);
+        }
+        
+        // Скрыть индикатор печати
+        hideTypingIndicator();
+        
+        // Если контент не найден, используем fallback
+        if (!data || data.trim() === '' || data.toLowerCase() === 'accepted') {
+          data = translations[currentLanguage].noResponse;
+          console.log('Не удалось извлечь контент');
+        }
+        
+        // Показать ответ бота
+        const botMsg = document.createElement('div');
+        botMsg.className = 'message bot';
+        botMsg.innerHTML = formatMessage(data);
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+      } catch (e) {
+        console.error('Ошибка:', e); // Для отладки
+        hideTypingIndicator();
+        
+        const botMsg = document.createElement('div');
+        botMsg.className = 'message bot';
+        botMsg.innerHTML = translations[currentLanguage].error;
+        chatBox.appendChild(botMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      // Разблокировать поле ввода
+      input.disabled = false;
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = `<span class="send-icon">📤</span> <span id="send-text">${translations[currentLanguage].send}</span>`;
+      input.focus();
+    }
+
+    // Фокус на поле ввода при загрузке страницы
+    window.addEventListener('load', function() {
+      document.getElementById('user-input').focus();
+    });
+  </script>
 </body>
 </html>
