@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="kk">
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -366,43 +366,159 @@
       from { box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
       to { box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
     }
+
+    /* Стили для выбора языка */
+    .language-selector {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+    }
+
+    #language-select {
+      background: rgba(0, 34, 0, 0.8);
+      color: #00ff88;
+      border: 2px solid rgba(0, 255, 136, 0.3);
+      border-radius: 15px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(5px);
+    }
+
+    #language-select:hover {
+      border-color: #00ff88;
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    #language-select option {
+      background: #001a00;
+      color: #00ff88;
+    }
   </style>
 </head>
 <body>
   <header class="glow-effect">
-    🤖 GreenBot — AI көмекшің
+    🤖 GreenBot — ваш AI помощник
     <div class="bot-status">
       <div class="status-indicator"></div>
-      Онлайн және дайын
+      <span id="status-text">Онлайн и готов к работе</span>
+    </div>
+    <div class="language-selector">
+      <select id="language-select">
+        <option value="ru">🇷🇺 Русский</option>
+        <option value="kk">🇰🇿 Қазақша</option>
+        <option value="en">🇺🇸 English</option>
+      </select>
     </div>
   </header>
   
   <div id="chat-container">
     <div id="chat-box">
       <div class="message bot">
-        Сәлем! Мен — GreenBot 🌱<br>
-        Сізге қалай көмектесе аламын? Кез келген сұрақ қоя аласыз!
+        Привет! Я — GreenBot 🌱<br>
+        Как могу помочь? Задавайте любые вопросы!
       </div>
     </div>
     
     <div id="input-area">
-      <input type="text" id="user-input" placeholder="Хабарлама жазыңыз..." />
+      <input type="text" id="user-input" placeholder="Напишите сообщение..." />
       <button id="send-btn" onclick="sendMessage()">
         <span class="send-icon">📤</span>
-        Жіберу
+        <span id="send-text">Отправить</span>
       </button>
     </div>
   </div>
 
   <script>
-    // Энтер батырмасына басқанда хабарлама жіберу
+    // Переводы для разных языков
+    const translations = {
+      ru: {
+        title: "🤖 GreenBot — ваш AI помощник",
+        status: "Онлайн и готов к работе",
+        placeholder: "Напишите сообщение...",
+        send: "Отправить",
+        sending: "Отправляется...",
+        greeting: "Привет! Я — GreenBot 🌱<br>Как могу помочь? Задавайте любые вопросы!",
+        error: "⚠️ <strong>Произошла ошибка:</strong><br>Проверьте интернет-соединение или попробуйте позже.",
+        noResponse: "Извините, ответ не получен. Попробуйте еще раз."
+      },
+      kk: {
+        title: "🤖 GreenBot — AI көмекшің",
+        status: "Онлайн және дайын",
+        placeholder: "Хабарлама жазыңыз...",
+        send: "Жіберу",
+        sending: "Жіберілуде...",
+        greeting: "Сәлем! Мен — GreenBot 🌱<br>Сізге қалай көмектесе аламын? Кез келген сұрақ қоя аласыз!",
+        error: "⚠️ <strong>Қате орын алды:</strong><br>Интернет байланысын тексеріңіз немесе кейінірек қайталаңыз.",
+        noResponse: "Кешіріңіз, жауап алынбады. Қайталап көріңіз."
+      },
+      en: {
+        title: "🤖 GreenBot — your AI assistant",
+        status: "Online and ready to help",
+        placeholder: "Type your message...",
+        send: "Send",
+        sending: "Sending...",
+        greeting: "Hello! I'm GreenBot 🌱<br>How can I help you? Feel free to ask any questions!",
+        error: "⚠️ <strong>Error occurred:</strong><br>Check your internet connection or try again later.",
+        noResponse: "Sorry, no response received. Please try again."
+      }
+    };
+
+    let currentLanguage = 'ru';
+
+    // Функция для смены языка
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      const t = translations[lang];
+      
+      // Обновляем элементы интерфейса
+      document.querySelector('header').innerHTML = `
+        ${t.title}
+        <div class="bot-status">
+          <div class="status-indicator"></div>
+          <span id="status-text">${t.status}</span>
+        </div>
+        <div class="language-selector">
+          <select id="language-select">
+            <option value="ru" ${lang === 'ru' ? 'selected' : ''}>🇷🇺 Русский</option>
+            <option value="kk" ${lang === 'kk' ? 'selected' : ''}>🇰🇿 Қазақша</option>
+            <option value="en" ${lang === 'en' ? 'selected' : ''}>🇺🇸 English</option>
+          </select>
+        </div>
+      `;
+      
+      document.getElementById('user-input').placeholder = t.placeholder;
+      document.getElementById('send-text').textContent = t.send;
+      
+      // Обновляем приветственное сообщение
+      const firstBotMessage = document.querySelector('.message.bot');
+      if (firstBotMessage) {
+        firstBotMessage.innerHTML = t.greeting;
+      }
+      
+      // Переназначаем обработчик для нового селектора
+      document.getElementById('language-select').addEventListener('change', function(e) {
+        changeLanguage(e.target.value);
+      });
+    }
+
+    // Инициализация обработчика смены языка
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('language-select').addEventListener('change', function(e) {
+        changeLanguage(e.target.value);
+      });
+    });
+
+    // Отправка сообщения по нажатию Enter
     document.getElementById('user-input').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         sendMessage();
       }
     });
 
-    // Типинг индикаторын көрсету
+    // Показать индикатор печати
     function showTypingIndicator() {
       const chatBox = document.getElementById('chat-box');
       const typingDiv = document.createElement('div');
@@ -417,7 +533,7 @@
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Типинг индикаторын жасыру
+    // Скрыть индикатор печати
     function hideTypingIndicator() {
       const typingIndicator = document.getElementById('typing-indicator');
       if (typingIndicator) {
@@ -425,36 +541,46 @@
       }
     }
 
-    // Функция для извлечения контента из JSON ответа
-    function extractContent(jsonData) {
-      // Если это массив, берем первый элемент
-      if (Array.isArray(jsonData) && jsonData.length > 0) {
-        jsonData = jsonData[0];
+    // Функция для извлечения контента из ответа
+    function extractContent(data) {
+      // Если данные - строка
+      if (typeof data === 'string') {
+        // Проверяем, не является ли это JSON-строкой
+        try {
+          const parsed = JSON.parse(data);
+          return extractContent(parsed);
+        } catch (e) {
+          // Если не JSON, возвращаем как есть
+          return data;
+        }
       }
       
-      // Если есть поле message с объектом
-      if (jsonData.message && typeof jsonData.message === 'object') {
-        return jsonData.message.content || jsonData.message.text || '';
-      }
-      
-      // Если есть просто поле content
-      if (jsonData.content) {
-        return jsonData.content;
-      }
-      
-      // Если есть поле message как строка
-      if (jsonData.message && typeof jsonData.message === 'string') {
-        return jsonData.message;
-      }
-      
-      // Если есть поле response
-      if (jsonData.response) {
-        return jsonData.response;
-      }
-      
-      // Если есть поле text
-      if (jsonData.text) {
-        return jsonData.text;
+      // Если данные - объект
+      if (typeof data === 'object' && data !== null) {
+        // Ищем поле content
+        if (data.content) {
+          return data.content;
+        }
+        
+        // Ищем поле message
+        if (data.message) {
+          return data.message;
+        }
+        
+        // Ищем поле response
+        if (data.response) {
+          return data.response;
+        }
+        
+        // Ищем поле text
+        if (data.text) {
+          return data.text;
+        }
+        
+        // Если данные - это массив, берем первый элемент
+        if (Array.isArray(data) && data.length > 0) {
+          return extractContent(data[0]);
+        }
       }
       
       // Если ничего не найдено, возвращаем null
@@ -468,7 +594,7 @@
       
       if (!message) return;
 
-      // Пайдаланушы хабарламасын көрсету
+      // Показать сообщение пользователя
       const chatBox = document.getElementById('chat-box');
       const userMsg = document.createElement('div');
       userMsg.className = 'message user';
@@ -476,13 +602,13 @@
       chatBox.appendChild(userMsg);
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // Инпутты тазалау және блоктау
+      // Очистить поле ввода и заблокировать
       input.value = '';
       input.disabled = true;
       sendBtn.disabled = true;
-      sendBtn.innerHTML = '<span class="send-icon">⏳</span> Жіберілуде...';
+      sendBtn.innerHTML = `<span class="send-icon">⏳</span> <span>${translations[currentLanguage].sending}</span>`;
 
-      // Типинг индикаторын көрсету
+      // Показать индикатор печати
       showTypingIndicator();
 
       try {
@@ -500,27 +626,25 @@
           const jsonData = await res.json();
           console.log('Полученные данные:', jsonData); // Для отладки
           
-          // Извлекаем контент с помощью новой функции
+          // Извлекаем контент с помощью функции
           data = extractContent(jsonData);
-          
-          // Если контент не найден, используем fallback
-          if (!data) {
-            data = 'Получен ответ от сервера, но не удалось извлечь текст сообщения.';
-            console.log('Не удалось извлечь контент из:', jsonData);
-          }
         } else {
-          data = await res.text();
+          // Если это текст, тоже пытаемся извлечь контент
+          const textData = await res.text();
+          console.log('Полученный текст:', textData); // Для отладки
+          data = extractContent(textData);
         }
         
-        // Типинг индикаторын жасыру
+        // Скрыть индикатор печати
         hideTypingIndicator();
         
-        // Проверяем, что ответ не пустой и не "accepted"
+        // Если контент не найден, используем fallback
         if (!data || data.trim() === '' || data.toLowerCase() === 'accepted') {
-          data = 'Кешіріңіз, жауап алынбады. Қайталап көріңіз.';
+          data = translations[currentLanguage].noResponse;
+          console.log('Не удалось извлечь контент');
         }
         
-        // Боттың жауабын көрсету
+        // Показать ответ бота
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';
         botMsg.textContent = data;
@@ -533,19 +657,19 @@
         
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';
-        botMsg.innerHTML = '⚠️ <strong>Қате орын алды:</strong><br>Интернет байланысын тексеріңіз немесе кейінірек қайталаңыз.';
+        botMsg.innerHTML = translations[currentLanguage].error;
         chatBox.appendChild(botMsg);
         chatBox.scrollTop = chatBox.scrollHeight;
       }
 
-      // Инпутты қайта іске қосу
+      // Разблокировать поле ввода
       input.disabled = false;
       sendBtn.disabled = false;
-      sendBtn.innerHTML = '<span class="send-icon">📤</span> Жіберу';
+      sendBtn.innerHTML = `<span class="send-icon">📤</span> <span id="send-text">${translations[currentLanguage].send}</span>`;
       input.focus();
     }
 
-    // Бетті жүктегенде инпутқа фокус қою
+    // Фокус на поле ввода при загрузке страницы
     window.addEventListener('load', function() {
       document.getElementById('user-input').focus();
     });
