@@ -425,6 +425,42 @@
       }
     }
 
+    // Функция для извлечения контента из JSON ответа
+    function extractContent(jsonData) {
+      // Если это массив, берем первый элемент
+      if (Array.isArray(jsonData) && jsonData.length > 0) {
+        jsonData = jsonData[0];
+      }
+      
+      // Если есть поле message с объектом
+      if (jsonData.message && typeof jsonData.message === 'object') {
+        return jsonData.message.content || jsonData.message.text || '';
+      }
+      
+      // Если есть просто поле content
+      if (jsonData.content) {
+        return jsonData.content;
+      }
+      
+      // Если есть поле message как строка
+      if (jsonData.message && typeof jsonData.message === 'string') {
+        return jsonData.message;
+      }
+      
+      // Если есть поле response
+      if (jsonData.response) {
+        return jsonData.response;
+      }
+      
+      // Если есть поле text
+      if (jsonData.text) {
+        return jsonData.text;
+      }
+      
+      // Если ничего не найдено, возвращаем null
+      return null;
+    }
+
     async function sendMessage() {
       const input = document.getElementById('user-input');
       const sendBtn = document.getElementById('send-btn');
@@ -462,7 +498,16 @@
         const contentType = res.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           const jsonData = await res.json();
-          data = jsonData.message || jsonData.response || jsonData.text || JSON.stringify(jsonData);
+          console.log('Полученные данные:', jsonData); // Для отладки
+          
+          // Извлекаем контент с помощью новой функции
+          data = extractContent(jsonData);
+          
+          // Если контент не найден, используем fallback
+          if (!data) {
+            data = 'Получен ответ от сервера, но не удалось извлечь текст сообщения.';
+            console.log('Не удалось извлечь контент из:', jsonData);
+          }
         } else {
           data = await res.text();
         }
@@ -483,6 +528,7 @@
         chatBox.scrollTop = chatBox.scrollHeight;
         
       } catch (e) {
+        console.error('Ошибка:', e); // Для отладки
         hideTypingIndicator();
         
         const botMsg = document.createElement('div');
