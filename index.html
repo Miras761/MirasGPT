@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head><title>GreenBot</title></head>
+  <body>
+    <textarea id="input"></textarea>
+    <button onclick="send()">Send</button>
+    <div id="response"></div>
+
+    <script>
+      async function send() {
+        const message = document.getElementById("input").value;
+        const res = await fetch("https://hook.eu2.make.com/4crgw0g7k5uu2lt2mwou7jhgt7ya70o7", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.text();
+        document.getElementById("response").innerText = data;
+      }
+    </script>
+  </body>
+</html>
