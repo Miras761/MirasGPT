@@ -396,75 +396,6 @@
       background: #001a00;
       color: #00ff88;
     }
-
-    /* Стили для блоков кода */
-    .code-block {
-      background: #001a00;
-      border: 1px solid #00ff88;
-      border-radius: 10px;
-      margin: 10px 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .code-header {
-      background: #00ff88;
-      color: #001a00;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .copy-btn {
-      background: transparent;
-      border: 1px solid #001a00;
-      color: #001a00;
-      padding: 4px 8px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 11px;
-      transition: all 0.2s ease;
-    }
-
-    .copy-btn:hover {
-      background: #001a00;
-      color: #00ff88;
-    }
-
-    .copy-btn.copied {
-      background: #004400;
-      color: #ffffff;
-      border-color: #004400;
-    }
-
-    .code-content {
-      padding: 15px;
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      line-height: 1.4;
-      color: #00ff88;
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-x: auto;
-    }
-
-    .code-content::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-
-    .code-content::-webkit-scrollbar-track {
-      background: rgba(0, 34, 0, 0.3);
-      border-radius: 3px;
-    }
-
-    .code-content::-webkit-scrollbar-thumb {
-      background: #00ff88;
-      border-radius: 3px;
-    }
   </style>
 </head>
 <body>
@@ -610,71 +541,7 @@
       }
     }
 
-    // Функция для форматирования сообщений с кодом
-    function formatMessage(text) {
-      // Регулярное выражение для поиска блоков кода
-      const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
-      const inlineCodeRegex = /`([^`]+)`/g;
-      
-      let formattedText = text;
-      
-      // Замена блоков кода
-      formattedText = formattedText.replace(codeBlockRegex, (match, lang, code) => {
-        const language = lang || 'код';
-        const codeId = 'code_' + Math.random().toString(36).substr(2, 9);
-        return `<div class="code-block">
-          <div class="code-header">
-            <span>${language}</span>
-            <button class="copy-btn" onclick="copyCode('${codeId}')">Копировать</button>
-          </div>
-          <div class="code-content" id="${codeId}">${code.trim()}</div>
-        </div>`;
-      });
-      
-      // Замена инлайн кода
-      formattedText = formattedText.replace(inlineCodeRegex, '<code style="background: rgba(0, 255, 136, 0.1); padding: 2px 4px; border-radius: 3px; font-family: monospace;">$1</code>');
-      
-      return formattedText;
-    }
-
-    // Функция для копирования кода
-    function copyCode(codeId) {
-      const codeElement = document.getElementById(codeId);
-      const text = codeElement.textContent;
-      
-      navigator.clipboard.writeText(text).then(() => {
-        // Находим кнопку копирования
-        const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
-        const originalText = copyBtn.textContent;
-        
-        // Меняем текст на "Скопировано!"
-        copyBtn.textContent = 'Скопировано!';
-        copyBtn.classList.add('copied');
-        
-        // Возвращаем исходный текст через 2 секунды
-        setTimeout(() => {
-          copyBtn.textContent = originalText;
-          copyBtn.classList.remove('copied');
-        }, 2000);
-      }).catch(err => {
-        console.error('Ошибка при копировании:', err);
-        // Fallback для старых браузеров
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
-        const copyBtn = codeElement.parentElement.querySelector('.copy-btn');
-        copyBtn.textContent = 'Скопировано!';
-        copyBtn.classList.add('copied');
-        setTimeout(() => {
-          copyBtn.textContent = 'Копировать';
-          copyBtn.classList.remove('copied');
-        }, 2000);
-      });
-    }
+    // Функция для извлечения контента из ответа
     function extractContent(data) {
       // Если данные - строка
       if (typeof data === 'string') {
@@ -780,7 +647,7 @@
         // Показать ответ бота
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';
-        botMsg.innerHTML = formatMessage(data);
+        botMsg.textContent = data;
         chatBox.appendChild(botMsg);
         chatBox.scrollTop = chatBox.scrollHeight;
         
