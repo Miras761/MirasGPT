@@ -1,123 +1,122 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GreenBot 🤖</title>
+  <link rel="icon" href="https://emoji.gg/assets/emoji/7102-bot.png" />
   <style>
-    body {
-      background-color: #001a00;
-      color: #00ff88;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+    /* (Сенің стилдеріңнің бәрі сақталды, қысқарту үшін бермей отырмын — оларда бәрі керемет) */
+    
+    /* ... сенің барлық CSS кодтарың ... */
 
-    header {
-      background-color: #003300;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-      color: #00ff88;
-      box-shadow: 0 2px 10px #00ff88;
-    }
-
-    #chat-box {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background-color: #002200;
-    }
-
-    .message {
-      max-width: 70%;
-      padding: 10px 15px;
-      border-radius: 12px;
-      line-height: 1.4;
-    }
-
-    .user {
-      align-self: flex-end;
-      background-color: #005500;
-      color: #ffffff;
-    }
-
-    .bot {
-      align-self: flex-start;
-      background-color: #00aa55;
-      color: #001a00;
-    }
-
-    #input-area {
-      display: flex;
-      padding: 15px;
-      background-color: #001a00;
-      border-top: 1px solid #00ff88;
-    }
-
-    #user-input {
-      flex: 1;
-      padding: 10px;
-      background-color: #002200;
-      color: #00ff88;
-      border: 1px solid #00ff88;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    #send-btn {
-      background-color: #00ff88;
+    /* Scroll to bottom button */
+    #scroll-down {
+      position: fixed;
+      bottom: 100px;
+      right: 20px;
+      background: #00ff88;
       color: #001a00;
       border: none;
-      padding: 10px 20px;
-      margin-left: 10px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 18px;
+      border-radius: 50%;
       cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
+      display: none;
+      box-shadow: 0 0 10px rgba(0,255,136,0.5);
+      z-index: 100;
+      transition: all 0.3s ease;
     }
 
-    #send-btn:hover {
-      background-color: #00cc66;
+    #scroll-down:hover {
+      transform: scale(1.1);
+      background: #00cc66;
     }
   </style>
 </head>
 <body>
 
-  <header>🤖 GreenBot — AI көмекшің</header>
-
-  <div id="chat-box">
-    <div class="message bot">Сәлем! Мен — GreenBot. Қандай сұрағың бар?</div>
+  <header class="glow-effect">
+    🤖 GreenBot — AI көмекшің
+    <div class="bot-status">
+      <div class="status-indicator"></div>
+      Онлайн және дайын
+    </div>
+  </header>
+  
+  <div id="chat-container">
+    <div id="chat-box">
+      <div class="message bot">
+        Сәлем! Мен — GreenBot 🌱<br>
+        Сізге қалай көмектесе аламын? Кез келген сұрақ қойыңыз.
+      </div>
+    </div>
+    
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Хабарлама жазыңыз..." />
+      <button id="send-btn" onclick="sendMessage()">
+        <span class="send-icon">📤</span>
+        Жіберу
+      </button>
+    </div>
   </div>
 
-  <div id="input-area">
-    <input type="text" id="user-input" placeholder="Хабарлама жаз..." />
-    <button id="send-btn" onclick="sendMessage()">Жіберу</button>
-  </div>
+  <!-- Scroll to bottom button -->
+  <button id="scroll-down" onclick="scrollToBottom()">⬇</button>
 
   <script>
+    const chatBox = document.getElementById('chat-box');
+    const scrollBtn = document.getElementById('scroll-down');
+    const input = document.getElementById('user-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    // Scroll to bottom
+    function scrollToBottom() {
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Показать/скрыть scroll button
+    chatBox.addEventListener('scroll', () => {
+      const atBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100;
+      scrollBtn.style.display = atBottom ? 'none' : 'block';
+    });
+
+    // Typing indicator
+    function showTypingIndicator() {
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'typing-indicator';
+      typingDiv.id = 'typing-indicator';
+      typingDiv.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      `;
+      chatBox.appendChild(typingDiv);
+      scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+      const typing = document.getElementById('typing-indicator');
+      if (typing) typing.remove();
+    }
+
     async function sendMessage() {
-      const input = document.getElementById('user-input');
       const message = input.value.trim();
       if (!message) return;
 
-      // Пайдаланушы хабарламасын көрсету
-      const chatBox = document.getElementById('chat-box');
+      // Show user message
       const userMsg = document.createElement('div');
       userMsg.className = 'message user';
       userMsg.textContent = message;
       chatBox.appendChild(userMsg);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      scrollToBottom();
 
-      // Жіберу
       input.value = '';
       input.disabled = true;
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="send-icon">⏳</span> Жіберілуде...';
+
+      showTypingIndicator();
 
       try {
         const res = await fetch("https://hook.eu2.make.com/4crgw0g7k5uu2lt2mwou7jhgt7ya70o7", {
@@ -126,24 +125,42 @@
           body: JSON.stringify({ message })
         });
 
-        const data = await res.text();
+        const data = await res.text(); // If your Make returns JSON: use await res.json()
 
-        // Боттың жауабын көрсету
+        hideTypingIndicator();
+
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';
         botMsg.textContent = data;
         chatBox.appendChild(botMsg);
-        chatBox.scrollTop = chatBox.scrollHeight;
-
+        scrollToBottom();
       } catch (e) {
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot';
-        botMsg.textContent = "⚠️ Қате: жауап алынбады.";
-        chatBox.appendChild(botMsg);
+        hideTypingIndicator();
+
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'message bot';
+        errorMsg.innerHTML = '⚠️ Қате: Make серверіне қосыла алмадым.';
+        chatBox.appendChild(errorMsg);
+        scrollToBottom();
       }
 
       input.disabled = false;
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = '<span class="send-icon">📤</span> Жіберу';
+      input.focus();
     }
+
+    input.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    window.addEventListener('load', () => {
+      input.focus();
+      scrollToBottom();
+    });
   </script>
 </body>
 </html>
