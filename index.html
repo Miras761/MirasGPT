@@ -4,13 +4,183 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GreenBot 🤖</title>
-  <link rel="icon" href="https://emoji.gg/assets/emoji/7102-bot.png" />
   <style>
-    /* (Сенің стилдеріңнің бәрі сақталды, қысқарту үшін бермей отырмын — оларда бәрі керемет) */
-    
-    /* ... сенің барлық CSS кодтарың ... */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    /* Scroll to bottom button */
+    body {
+      background: linear-gradient(145deg, #001a00, #002a00);
+      color: #00ff88;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 20% 80%, rgba(0,255,136,0.1), transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(0,255,136,0.1), transparent 50%);
+      animation: pulse 4s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      100% { opacity: 0.8; }
+    }
+
+    header {
+      background: linear-gradient(90deg, #003300, #004400, #003300);
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      box-shadow: 0 4px 20px rgba(0,255,136,0.3);
+    }
+
+    .bot-status {
+      font-size: 14px;
+      margin-top: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.8;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00ff88;
+      animation: heartbeat 1.5s infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 0 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    #chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      border-radius: 15px 15px 0 0;
+      background: rgba(0, 34, 0, 0.5);
+      backdrop-filter: blur(6px);
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 12px 18px;
+      border-radius: 18px;
+      line-height: 1.4;
+      position: relative;
+      animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #005500, #007700);
+      color: white;
+      border-bottom-right-radius: 6px;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: linear-gradient(135deg, #00aa55, #00cc66);
+      color: #001a00;
+      border-bottom-left-radius: 6px;
+      font-weight: 500;
+    }
+
+    .typing-indicator {
+      align-self: flex-start;
+      background: linear-gradient(135deg, #00aa55, #00cc66);
+      color: #001a00;
+      border-radius: 20px;
+      padding: 12px 16px;
+      display: flex;
+      gap: 5px;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #001a00;
+      border-radius: 50%;
+      animation: typing 1.2s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-8px); }
+    }
+
+    #input-area {
+      display: flex;
+      gap: 10px;
+      padding: 20px;
+      background: rgba(0, 34, 0, 0.8);
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 -4px 15px rgba(0, 255, 136, 0.1);
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: #002200;
+      color: #00ff88;
+      border: 2px solid rgba(0,255,136,0.4);
+      border-radius: 20px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    #user-input::placeholder {
+      color: rgba(0,255,136,0.6);
+    }
+
+    #send-btn {
+      background: linear-gradient(135deg, #00ff88, #00cc66);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #001a00;
+      transition: 0.3s ease;
+    }
+
+    #send-btn:hover {
+      background: #00cc66;
+      transform: scale(1.05);
+    }
+
     #scroll-down {
       position: fixed;
       bottom: 100px;
@@ -32,135 +202,130 @@
       transform: scale(1.1);
       background: #00cc66;
     }
+
+    @media(max-width: 600px) {
+      #chat-container { padding: 0 10px; }
+      #send-btn { padding: 10px 16px; font-size: 14px; }
+      #user-input { font-size: 14px; }
+    }
   </style>
 </head>
 <body>
 
-  <header class="glow-effect">
+  <header>
     🤖 GreenBot — AI көмекшің
     <div class="bot-status">
       <div class="status-indicator"></div>
       Онлайн және дайын
     </div>
   </header>
-  
+
   <div id="chat-container">
     <div id="chat-box">
-      <div class="message bot">
-        Сәлем! Мен — GreenBot 🌱<br>
-        Сізге қалай көмектесе аламын? Кез келген сұрақ қойыңыз.
-      </div>
+      <div class="message bot">Сәлем! Мен — GreenBot 🌱<br>Сұрағыңызды қойыңыз.</div>
     </div>
-    
+
     <div id="input-area">
       <input type="text" id="user-input" placeholder="Хабарлама жазыңыз..." />
-      <button id="send-btn" onclick="sendMessage()">
-        <span class="send-icon">📤</span>
-        Жіберу
-      </button>
+      <button id="send-btn" onclick="sendMessage()">📤 Жіберу</button>
     </div>
   </div>
 
-  <!-- Scroll to bottom button -->
   <button id="scroll-down" onclick="scrollToBottom()">⬇</button>
 
   <script>
-    const chatBox = document.getElementById('chat-box');
-    const scrollBtn = document.getElementById('scroll-down');
-    const input = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
+    const input = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
+    const chatBox = document.getElementById("chat-box");
+    const scrollBtn = document.getElementById("scroll-down");
 
-    // Scroll to bottom
+    input.addEventListener("keypress", e => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    chatBox.addEventListener("scroll", () => {
+      const nearBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100;
+      scrollBtn.style.display = nearBottom ? "none" : "block";
+    });
+
     function scrollToBottom() {
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    // Показать/скрыть scroll button
-    chatBox.addEventListener('scroll', () => {
-      const atBottom = chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight < 100;
-      scrollBtn.style.display = atBottom ? 'none' : 'block';
-    });
-
-    // Typing indicator
-    function showTypingIndicator() {
-      const typingDiv = document.createElement('div');
-      typingDiv.className = 'typing-indicator';
-      typingDiv.id = 'typing-indicator';
-      typingDiv.innerHTML = `
+    function showTyping() {
+      const typing = document.createElement("div");
+      typing.className = "typing-indicator";
+      typing.id = "typing-indicator";
+      typing.innerHTML = `
         <div class="typing-dot"></div>
         <div class="typing-dot"></div>
         <div class="typing-dot"></div>
       `;
-      chatBox.appendChild(typingDiv);
+      chatBox.appendChild(typing);
       scrollToBottom();
     }
 
-    function hideTypingIndicator() {
-      const typing = document.getElementById('typing-indicator');
-      if (typing) typing.remove();
+    function hideTyping() {
+      const el = document.getElementById("typing-indicator");
+      if (el) el.remove();
     }
 
     async function sendMessage() {
-      const message = input.value.trim();
-      if (!message) return;
+      const msg = input.value.trim();
+      if (!msg) return;
 
-      // Show user message
-      const userMsg = document.createElement('div');
-      userMsg.className = 'message user';
-      userMsg.textContent = message;
+      // Add user message
+      const userMsg = document.createElement("div");
+      userMsg.className = "message user";
+      userMsg.textContent = msg;
       chatBox.appendChild(userMsg);
       scrollToBottom();
 
-      input.value = '';
+      input.value = "";
       input.disabled = true;
       sendBtn.disabled = true;
-      sendBtn.innerHTML = '<span class="send-icon">⏳</span> Жіберілуде...';
+      sendBtn.textContent = "⏳ Жіберілуде...";
 
-      showTypingIndicator();
+      showTyping();
 
       try {
         const res = await fetch("https://hook.eu2.make.com/4crgw0g7k5uu2lt2mwou7jhgt7ya70o7", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message })
+          body: JSON.stringify({ message: msg })
         });
 
-        const data = await res.text(); // If your Make returns JSON: use await res.json()
+        const json = await res.json();
+        const reply = json.result || "🤖 Жауап алынбады.";
 
-        hideTypingIndicator();
+        hideTyping();
 
-        const botMsg = document.createElement('div');
-        botMsg.className = 'message bot';
-        botMsg.textContent = data;
+        const botMsg = document.createElement("div");
+        botMsg.className = "message bot";
+        botMsg.textContent = reply;
         chatBox.appendChild(botMsg);
         scrollToBottom();
-      } catch (e) {
-        hideTypingIndicator();
 
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'message bot';
-        errorMsg.innerHTML = '⚠️ Қате: Make серверіне қосыла алмадым.';
+      } catch (err) {
+        hideTyping();
+        const errorMsg = document.createElement("div");
+        errorMsg.className = "message bot";
+        errorMsg.textContent = "⚠️ Қате: жауап алынбады.";
         chatBox.appendChild(errorMsg);
         scrollToBottom();
       }
 
       input.disabled = false;
       sendBtn.disabled = false;
-      sendBtn.innerHTML = '<span class="send-icon">📤</span> Жіберу';
+      sendBtn.textContent = "📤 Жіберу";
       input.focus();
     }
 
-    input.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
-      }
-    });
-
-    window.addEventListener('load', () => {
+    window.addEventListener("load", () => {
       input.focus();
       scrollToBottom();
     });
   </script>
+
 </body>
 </html>
