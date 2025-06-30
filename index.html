@@ -199,6 +199,84 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
+    /* Стили для кода */
+    .code-block {
+      background: rgba(0, 26, 0, 0.8);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 10px;
+      margin: 10px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-header {
+      background: rgba(0, 34, 0, 0.9);
+      padding: 8px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+    }
+
+    .code-language {
+      color: #00ff88;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .copy-btn {
+      background: rgba(0, 255, 136, 0.2);
+      color: #00ff88;
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      border-radius: 5px;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background: rgba(0, 255, 136, 0.3);
+      border-color: #00ff88;
+    }
+
+    .copy-btn.copied {
+      background: rgba(0, 255, 136, 0.5);
+      color: #001a00;
+    }
+
+    .code-content {
+      padding: 15px;
+      background: rgba(0, 17, 0, 0.8);
+      color: #00ff88;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-x: auto;
+    }
+
+    /* Подсветка синтаксиса для Lua */
+    .lua-keyword {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+
+    .lua-string {
+      color: #4ecdc4;
+    }
+
+    .lua-comment {
+      color: #95a5a6;
+      font-style: italic;
+    }
+
+    .lua-function {
+      color: #f39c12;
+    }
+
     .typing-indicator {
       align-self: flex-start;
       background: linear-gradient(135deg, #00aa55, #00cc66);
@@ -396,6 +474,31 @@
       background: #001a00;
       color: #00ff88;
     }
+
+    /* Уведомление о копировании */
+    .copy-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #00ff88, #00cc66);
+      color: #001a00;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      z-index: 1000;
+      animation: slideInOut 2s ease-in-out;
+    }
+
+    @keyframes slideInOut {
+      0%, 100% { 
+        transform: translateX(100%); 
+        opacity: 0; 
+      }
+      20%, 80% { 
+        transform: translateX(0); 
+        opacity: 1; 
+      }
+    }
   </style>
 </head>
 <body>
@@ -442,7 +545,9 @@
         sending: "Отправляется...",
         greeting: "Привет! Я — GreenBot 🌱<br>Как могу помочь? Задавайте любые вопросы!",
         error: "⚠️ <strong>Произошла ошибка:</strong><br>Проверьте интернет-соединение или попробуйте позже.",
-        noResponse: "Извините, ответ не получен. Попробуйте еще раз."
+        noResponse: "Извините, ответ не получен. Попробуйте еще раз.",
+        copyBtn: "Копировать",
+        copied: "Скопировано!"
       },
       kk: {
         title: "🤖 GreenBot — AI көмекшің",
@@ -452,7 +557,9 @@
         sending: "Жіберілуде...",
         greeting: "Сәлем! Мен — GreenBot 🌱<br>Сізге қалай көмектесе аламын? Кез келген сұрақ қоя аласыз!",
         error: "⚠️ <strong>Қате орын алды:</strong><br>Интернет байланысын тексеріңіз немесе кейінірек қайталаңыз.",
-        noResponse: "Кешіріңіз, жауап алынбады. Қайталап көріңіз."
+        noResponse: "Кешіріңіз, жауап алынбады. Қайталап көріңіз.",
+        copyBtn: "Көшіру",
+        copied: "Көшірілді!"
       },
       en: {
         title: "🤖 GreenBot — your AI assistant",
@@ -462,11 +569,134 @@
         sending: "Sending...",
         greeting: "Hello! I'm GreenBot 🌱<br>How can I help you? Feel free to ask any questions!",
         error: "⚠️ <strong>Error occurred:</strong><br>Check your internet connection or try again later.",
-        noResponse: "Sorry, no response received. Please try again."
+        noResponse: "Sorry, no response received. Please try again.",
+        copyBtn: "Copy",
+        copied: "Copied!"
       }
     };
 
     let currentLanguage = 'ru';
+
+    // Функция для показа уведомления о копировании
+    function showCopyNotification() {
+      const notification = document.createElement('div');
+      notification.className = 'copy-notification';
+      notification.textContent = translations[currentLanguage].copied;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 2000);
+    }
+
+    // Функция для копирования кода
+    function copyCode(button, codeText) {
+      navigator.clipboard.writeText(codeText).then(() => {
+        const originalText = button.textContent;
+        button.textContent = translations[currentLanguage].copied;
+        button.classList.add('copied');
+        showCopyNotification();
+        
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove('copied');
+        }, 2000);
+      }).catch(err => {
+        console.error('Ошибка копирования:', err);
+      });
+    }
+
+    // Функция для обработки текста с выделением кода
+    function formatBotResponse(text) {
+      // Разбиваем текст на части и форматируем
+      let formattedText = text;
+      
+      // Ищем блоки кода между ```
+      const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
+      let match;
+      let parts = [];
+      let lastIndex = 0;
+      
+      while ((match = codeBlockRegex.exec(text)) !== null) {
+        // Добавляем текст до блока кода
+        if (match.index > lastIndex) {
+          parts.push({
+            type: 'text',
+            content: text.substring(lastIndex, match.index)
+          });
+        }
+        
+        // Добавляем блок кода
+        parts.push({
+          type: 'code',
+          language: match[1] || 'lua',
+          content: match[2].trim()
+        });
+        
+        lastIndex = match.index + match[0].length;
+      }
+      
+      // Добавляем оставшийся текст
+      if (lastIndex < text.length) {
+        parts.push({
+          type: 'text',
+          content: text.substring(lastIndex)
+        });
+      }
+      
+      // Если не найдено блоков кода, проверяем на инлайн код
+      if (parts.length === 0) {
+        parts.push({
+          type: 'text',
+          content: text
+        });
+      }
+      
+      return parts;
+    }
+
+    // Функция для подсветки синтаксиса Lua
+    function highlightLuaCode(code) {
+      let highlighted = code;
+      
+      // Ключевые слова Lua
+      const keywords = ['local', 'function', 'end', 'if', 'then', 'else', 'elseif', 'while', 'do', 'for', 'in', 'repeat', 'until', 'break', 'return', 'and', 'or', 'not', 'true', 'false', 'nil'];
+      keywords.forEach(keyword => {
+        const regex = new RegExp(`\\b${keyword}\\b`, 'g');
+        highlighted = highlighted.replace(regex, `<span class="lua-keyword">${keyword}</span>`);
+      });
+      
+      // Строки
+      highlighted = highlighted.replace(/(["'])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="lua-string">$1$2$1</span>');
+      
+      // Комментарии
+      highlighted = highlighted.replace(/--.*$/gm, '<span class="lua-comment">$&</span>');
+      
+      // Функции
+      highlighted = highlighted.replace(/\b(\w+)\s*(?=\()/g, '<span class="lua-function">$1</span>');
+      
+      return highlighted;
+    }
+
+    // Функция для создания блока кода
+    function createCodeBlock(language, code) {
+      const codeId = 'code_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      
+      const codeBlock = document.createElement('div');
+      codeBlock.className = 'code-block';
+      
+      const highlightedCode = language === 'lua' ? highlightLuaCode(code) : code;
+      
+      codeBlock.innerHTML = `
+        <div class="code-header">
+          <span class="code-language">${language}</span>
+          <button class="copy-btn" onclick="copyCode(this, \`${code.replace(/`/g, '\\`')}\`)">${translations[currentLanguage].copyBtn}</button>
+        </div>
+        <div class="code-content">${highlightedCode}</div>
+      `;
+      
+      return codeBlock;
+    }
 
     // Функция для смены языка
     function changeLanguage(lang) {
@@ -543,47 +773,26 @@
 
     // Функция для извлечения контента из ответа
     function extractContent(data) {
-      // Если данные - строка
       if (typeof data === 'string') {
-        // Проверяем, не является ли это JSON-строкой
         try {
           const parsed = JSON.parse(data);
           return extractContent(parsed);
         } catch (e) {
-          // Если не JSON, возвращаем как есть
           return data;
         }
       }
       
-      // Если данные - объект
       if (typeof data === 'object' && data !== null) {
-        // Ищем поле content
-        if (data.content) {
-          return data.content;
-        }
+        if (data.content) return data.content;
+        if (data.message) return data.message;
+        if (data.response) return data.response;
+        if (data.text) return data.text;
         
-        // Ищем поле message
-        if (data.message) {
-          return data.message;
-        }
-        
-        // Ищем поле response
-        if (data.response) {
-          return data.response;
-        }
-        
-        // Ищем поле text
-        if (data.text) {
-          return data.text;
-        }
-        
-        // Если данные - это массив, берем первый элемент
         if (Array.isArray(data) && data.length > 0) {
           return extractContent(data[0]);
         }
       }
       
-      // Если ничего не найдено, возвращаем null
       return null;
     }
 
@@ -620,39 +829,45 @@
         
         let data;
         
-        // Проверяем тип ответа
         const contentType = res.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
           const jsonData = await res.json();
-          console.log('Полученные данные:', jsonData); // Для отладки
-          
-          // Извлекаем контент с помощью функции
           data = extractContent(jsonData);
         } else {
-          // Если это текст, тоже пытаемся извлечь контент
           const textData = await res.text();
-          console.log('Полученный текст:', textData); // Для отладки
           data = extractContent(textData);
         }
         
-        // Скрыть индикатор печати
         hideTypingIndicator();
         
-        // Если контент не найден, используем fallback
         if (!data || data.trim() === '' || data.toLowerCase() === 'accepted') {
           data = translations[currentLanguage].noResponse;
-          console.log('Не удалось извлечь контент');
         }
         
-        // Показать ответ бота
+        // Создаем сообщение бота с форматированием
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';
-        botMsg.textContent = data;
+        
+        // Форматируем ответ
+        const parts = formatBotResponse(data);
+        
+        // Создаем контент для сообщения
+        parts.forEach(part => {
+          if (part.type === 'text') {
+            const textDiv = document.createElement('div');
+            textDiv.innerHTML = part.content.replace(/\n/g, '<br>');
+            botMsg.appendChild(textDiv);
+          } else if (part.type === 'code') {
+            const codeBlock = createCodeBlock(part.language, part.content);
+            botMsg.appendChild(codeBlock);
+          }
+        });
+        
         chatBox.appendChild(botMsg);
         chatBox.scrollTop = chatBox.scrollHeight;
         
       } catch (e) {
-        console.error('Ошибка:', e); // Для отладки
+        console.error('Ошибка:', e);
         hideTypingIndicator();
         
         const botMsg = document.createElement('div');
