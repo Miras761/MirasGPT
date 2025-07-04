@@ -2,27 +2,30 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>GreenBot 🤖</title>
   <style>
-    /* Ваши стили остаются без изменений */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      touch-action: manipulation;
     }
 
     body {
       background: linear-gradient(145deg, #001a00 0%, #002a00 50%, #001a00 100%);
       color: #00ff88;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
 
-    /* Анимированный фон */
     body::before {
       content: '';
       position: fixed;
@@ -44,14 +47,14 @@
 
     header {
       background: linear-gradient(90deg, #003300, #004400, #003300);
-      padding: 20px;
+      padding: clamp(10px, 3vw, 15px);
       text-align: center;
-      font-size: 28px;
+      font-size: clamp(20px, 5vw, 26px);
       font-weight: bold;
       color: #00ff88;
       box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
       position: relative;
-      overflow: hidden;
+      z-index: 10;
     }
 
     header::before {
@@ -71,7 +74,7 @@
     }
 
     .bot-status {
-      font-size: 14px;
+      font-size: clamp(12px, 3vw, 14px);
       margin-top: 8px;
       opacity: 0.8;
       display: flex;
@@ -98,14 +101,15 @@
       display: flex;
       flex-direction: column;
       max-width: 1200px;
-      margin: 0 auto;
       width: 100%;
-      padding: 0 20px;
+      margin: 0 auto;
+      padding: 0 clamp(5px, 2vw, 10px);
+      overflow: hidden;
     }
 
     #chat-box {
       flex: 1;
-      padding: 20px;
+      padding: clamp(10px, 3vw, 15px);
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -114,8 +118,10 @@
       backdrop-filter: blur(10px);
       border-radius: 20px 20px 0 0;
       margin-bottom: 0;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
-      scrollbar-color: #00ff88 #002200;
+      scrollbar-color: #00ff88 rgba(0, 34, 0, 0.3);
     }
 
     #chat-box::-webkit-scrollbar {
@@ -133,8 +139,8 @@
     }
 
     .message {
-      max-width: 75%;
-      padding: 15px 20px;
+      max-width: 80%;
+      padding: clamp(10px, 2vw, 12px) clamp(12px, 3vw, 16px);
       border-radius: 20px;
       line-height: 1.5;
       position: relative;
@@ -200,7 +206,6 @@
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
-    /* Стили для кода */
     .code-block {
       background: rgba(0, 26, 0, 0.8);
       border: 1px solid rgba(0, 255, 136, 0.3);
@@ -221,7 +226,7 @@
 
     .code-language {
       color: #00ff88;
-      font-size: 12px;
+      font-size: clamp(10px, 2.5vw, 12px);
       font-weight: bold;
       text-transform: uppercase;
     }
@@ -232,7 +237,7 @@
       border: 1px solid rgba(0, 255, 136, 0.3);
       border-radius: 5px;
       padding: 4px 8px;
-      font-size: 11px;
+      font-size: clamp(10px, 2.5vw, 11px);
       cursor: pointer;
       transition: all 0.3s ease;
     }
@@ -252,31 +257,17 @@
       background: rgba(0, 17, 0, 0.8);
       color: #00ff88;
       font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-      font-size: 14px;
+      font-size: clamp(12px, 3vw, 14px);
       line-height: 1.4;
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-x: auto;
     }
 
-    /* Подсветка синтаксиса для Lua */
-    .lua-keyword {
-      color: #ff6b6b;
-      font-weight: bold;
-    }
-
-    .lua-string {
-      color: #4ecdc4;
-    }
-
-    .lua-comment {
-      color: #95a5a6;
-      font-style: italic;
-    }
-
-    .lua-function {
-      color: #f39c12;
-    }
+    .lua-keyword { color: #ff6b6b; font-weight: bold; }
+    .lua-string { color: #4ecdc4; }
+    .lua-comment { color: #95a5a6; font-style: italic; }
+    .lua-function { color: #f39c12; }
 
     .typing-indicator {
       align-self: flex-start;
@@ -298,42 +289,33 @@
       animation: typing 1.4s infinite;
     }
 
-    .typing-dot:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-
-    .typing-dot:nth-child(3) {
-      animation-delay: 0.4s;
-    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes typing {
-      0%, 60%, 100% {
-        transform: translateY(0);
-      }
-      30% {
-        transform: translateY(-10px);
-      }
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
     }
 
     #input-area {
       display: flex;
       align-items: center;
-      padding: 20px;
+      padding: clamp(10px, 3vw, 15px);
       background: linear-gradient(90deg, rgba(0, 34, 0, 0.8), rgba(0, 34, 0, 0.9));
       backdrop-filter: blur(10px);
       border-radius: 0 0 20px 20px;
-      gap: 15px;
+      gap: clamp(8px, 2vw, 12px);
       box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
     }
 
     #user-input {
       flex: 1;
-      padding: 15px 20px;
+      padding: clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 15px);
       background: rgba(0, 34, 0, 0.8);
       color: #00ff88;
       border: 2px solid rgba(0, 255, 136, 0.3);
       border-radius: 25px;
-      font-size: 16px;
+      font-size: clamp(14px, 3.5vw, 16px);
       outline: none;
       transition: all 0.3s ease;
       backdrop-filter: blur(5px);
@@ -353,11 +335,11 @@
       background: linear-gradient(135deg, #00ff88, #00cc66);
       color: #001a00;
       border: none;
-      padding: 15px 25px;
+      padding: clamp(10px, 2.5vw, 12px) clamp(15px, 3vw, 20px);
       border-radius: 25px;
       cursor: pointer;
       font-weight: bold;
-      font-size: 16px;
+      font-size: clamp(14px, 3.5vw, 16px);
       transition: all 0.3s ease;
       box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
       display: flex;
@@ -383,7 +365,7 @@
     }
 
     .send-icon {
-      font-size: 18px;
+      font-size: clamp(16px, 4vw, 18px);
       transition: transform 0.3s ease;
     }
 
@@ -391,65 +373,40 @@
       transform: translateX(3px);
     }
 
-    /* Адаптивность */
-    @media (max-width: 768px) {
-      #chat-container {
-        padding: 0 10px;
-      }
-      
-      header {
-        font-size: 24px;
-        padding: 15px;
-      }
-      
-      .message {
-        max-width: 85%;
-        padding: 12px 16px;
-      }
-      
-      #input-area {
-        padding: 15px;
-        gap: 10px;
-      }
-      
-      #user-input {
-        padding: 12px 16px;
-        font-size: 14px;
-      }
-      
-      #send-btn {
-        padding: 12px 20px;
-        font-size: 14px;
-      }
-    }
-    /* Дополнительные эффекты и стили остались без изменений */
-    .glow-effect {
-      position: relative;
+    #scroll-down-btn {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: linear-gradient(135deg, #00ff88, #00cc66);
+      color: #001a00;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
+      transition: all 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
     }
 
-    .glow-effect::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: inherit;
-      box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
-      animation: glow 2s ease-in-out infinite alternate;
-      z-index: -1;
+    #scroll-down-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
     }
 
-    @keyframes glow {
-      from { box-shadow: 0 0 20px rgba(0, 255, 136, 0.2); }
-      to { box-shadow: 0 0 30px rgba(0, 255, 136, 0.4); }
+    #scroll-down-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
     }
 
-    /* Стили для выбора языка */
     .language-selector {
       position: absolute;
-      top: 15px;
-      right: 20px;
+      top: clamp(10px, 2vw, 15px);
+      right: clamp(10px, 2vw, 20px);
     }
 
     #language-select {
@@ -457,8 +414,8 @@
       color: #00ff88;
       border: 2px solid rgba(0, 255, 136, 0.3);
       border-radius: 15px;
-      padding: 8px 12px;
-      font-size: 14px;
+      padding: clamp(6px, 2vw, 8px) clamp(10px, 2.5vw, 12px);
+      font-size: clamp(12px, 3vw, 14px);
       cursor: pointer;
       outline: none;
       transition: all 0.3s ease;
@@ -475,7 +432,6 @@
       color: #00ff88;
     }
 
-    /* Уведомление о копировании */
     .copy-notification {
       position: fixed;
       top: 20px;
@@ -490,14 +446,36 @@
     }
 
     @keyframes slideInOut {
-      0%, 100% { 
-        transform: translateX(100%); 
-        opacity: 0; 
-      }
-      20%, 80% { 
-        transform: translateX(0); 
-        opacity: 1; 
-      }
+      0%, 100% { transform: translateX(100%); opacity: 0; }
+      20%, 80% { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Адаптивность */
+    @media (max-width: 1024px) {
+      #chat-container { padding: 0 8px; }
+      .message { max-width: 85%; }
+      #input-area { padding: clamp(8px, 2vw, 12px); }
+      #user-input { font-size: clamp(13px, 3.5vw, 15px); }
+      #send-btn { font-size: clamp(13px, 3.5vw, 15px); }
+    }
+
+    @media (max-width: 768px) {
+      header { font-size: clamp(18px, 5vw, 22px); }
+      .message { max-width: 90%; padding: 10px 14px; }
+      #input-area { gap: 8px; }
+      #scroll-down-btn { bottom: 70px; width: 36px; height: 36px; }
+    }
+
+    @media (max-width: 480px) {
+      header { padding: 10px; }
+      .bot-status { font-size: clamp(10px, 3vw, 12px); }
+      #chat-box { padding: 8px; }
+      .message { max-width: 95%; font-size: clamp(12px, 3.5vw, 14px); }
+      #user-input { padding: 8px 12px; }
+      #send-btn { padding: 8px 15px; }
+      #scroll-down-btn { bottom: 60px; width: 32px; height: 32px; }
+      .language-selector { top: 8px; right: 10px; }
+      #language-select { padding: 6px 10px; font-size: clamp(10px, 3vw, 12px); }
     }
   </style>
 </head>
@@ -516,7 +494,7 @@
       </select>
     </div>
   </header>
-  
+
   <div id="chat-container">
     <div id="chat-box">
       <div class="message bot">
@@ -524,7 +502,7 @@
         Как могу помочь? Задавайте любые вопросы!
       </div>
     </div>
-    
+
     <div id="input-area">
       <input type="text" id="user-input" placeholder="Напишите сообщение..." />
       <button id="send-btn" onclick="sendMessage()">
@@ -534,8 +512,11 @@
     </div>
   </div>
 
+  <button id="scroll-down-btn" title="Прокрутить вниз">
+    ↓
+  </button>
+
   <script>
-    // Переводы для разных языков
     const translations = {
       ru: {
         title: "🤖 GreenBot — ваш AI помощник",
@@ -569,7 +550,9 @@
         sending: "Sending...",
         greeting: "Hello! I'm GreenBot 🌱<br>How can I help you? Feel free to ask any questions!",
         error: "⚠️ <strong>Error occurred:</strong><br>Check your internet connection or try again later.",
-        noResponse: "Sorry, no response received. Please try again.",
+        noResponse: "Sorry, no responsegerufen
+
+System: received. Please try again.",
         copyBtn: "Copy",
         copied: "Copied!"
       }
@@ -577,7 +560,6 @@
 
     let currentLanguage = 'ru';
 
-    // Функция для показа уведомления о копировании
     function showCopyNotification() {
       const notification = document.createElement('div');
       notification.className = 'copy-notification';
@@ -589,7 +571,6 @@
       }, 2000);
     }
 
-    // Функция для копирования кода
     function copyCode(button, codeText) {
       navigator.clipboard.writeText(codeText).then(() => {
         const originalText = button.textContent;
@@ -606,19 +587,13 @@
       });
     }
 
-    // Функция для обработки текста с выделением кода
     function formatBotResponse(text) {
-      // Разбиваем текст на части и форматируем
-      let formattedText = text;
-      
-      // Ищем блоки кода между ```
       const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
       let match;
       let parts = [];
       let lastIndex = 0;
       
       while ((match = codeBlockRegex.exec(text)) !== null) {
-        // Добавляем текст до блока кода
         if (match.index > lastIndex) {
           parts.push({
             type: 'text',
@@ -626,7 +601,6 @@
           });
         }
         
-        // Добавляем блок кода
         parts.push({
           type: 'code',
           language: match[1] || 'lua',
@@ -636,7 +610,6 @@
         lastIndex = match.index + match[0].length;
       }
       
-      // Добавляем оставшийся текст
       if (lastIndex < text.length) {
         parts.push({
           type: 'text',
@@ -644,7 +617,6 @@
         });
       }
       
-      // Если не найдено блоков кода, проверяем на инлайн код
       if (parts.length === 0) {
         parts.push({
           type: 'text',
@@ -655,36 +627,25 @@
       return parts;
     }
 
-    // Функция для подсветки синтаксиса Lua
     function highlightLuaCode(code) {
       let highlighted = code;
-      
-      // Ключевые слова Lua
       const keywords = ['local', 'function', 'end', 'if', 'then', 'else', 'elseif', 'while', 'do', 'for', 'in', 'repeat', 'until', 'break', 'return', 'and', 'or', 'not', 'true', 'false', 'nil'];
       keywords.forEach(keyword => {
         const regex = new RegExp(`\\b${keyword}\\b`, 'g');
         highlighted = highlighted.replace(regex, `<span class="lua-keyword">${keyword}</span>`);
       });
       
-      // Строки
       highlighted = highlighted.replace(/(["'])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="lua-string">$1$2$1</span>');
-      
-      // Комментарии
       highlighted = highlighted.replace(/--.*$/gm, '<span class="lua-comment">$&</span>');
-      
-      // Функции
       highlighted = highlighted.replace(/\b(\w+)\s*(?=\()/g, '<span class="lua-function">$1</span>');
       
       return highlighted;
     }
 
-    // Функция для создания блока кода
     function createCodeBlock(language, code) {
       const codeId = 'code_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-      
       const codeBlock = document.createElement('div');
       codeBlock.className = 'code-block';
-      
       const highlightedCode = language === 'lua' ? highlightLuaCode(code) : code;
       
       codeBlock.innerHTML = `
@@ -698,12 +659,10 @@
       return codeBlock;
     }
 
-    // Функция для смены языка
     function changeLanguage(lang) {
       currentLanguage = lang;
       const t = translations[lang];
       
-      // Обновляем элементы интерфейса
       document.querySelector('header').innerHTML = `
         ${t.title}
         <div class="bot-status">
@@ -722,33 +681,42 @@
       document.getElementById('user-input').placeholder = t.placeholder;
       document.getElementById('send-text').textContent = t.send;
       
-      // Обновляем приветственное сообщение
       const firstBotMessage = document.querySelector('.message.bot');
       if (firstBotMessage) {
         firstBotMessage.innerHTML = t.greeting;
       }
       
-      // Переназначаем обработчик для нового селектора
       document.getElementById('language-select').addEventListener('change', function(e) {
         changeLanguage(e.target.value);
       });
     }
 
-    // Инициализация обработчика смены языка
     document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('language-select').addEventListener('change', function(e) {
         changeLanguage(e.target.value);
       });
+
+      const chatBox = document.getElementById('chat-box');
+      const scrollDownBtn = document.getElementById('scroll-down-btn');
+
+      // Показать/скрыть кнопку прокрутки вниз
+      chatBox.addEventListener('scroll', function() {
+        const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 10;
+        scrollDownBtn.classList.toggle('visible', !isAtBottom);
+      });
+
+      // Прокрутка вниз при клике на кнопку
+      scrollDownBtn.addEventListener('click', function() {
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      });
     });
 
-    // Отправка сообщения по нажатию Enter
     document.getElementById('user-input').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         sendMessage();
       }
     });
 
-    // Показать индикатор печати
     function showTypingIndicator() {
       const chatBox = document.getElementById('chat-box');
       const typingDiv = document.createElement('div');
@@ -760,10 +728,9 @@
         <div class="typing-dot"></div>
       `;
       chatBox.appendChild(typingDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
     }
 
-    // Скрыть индикатор печати
     function hideTypingIndicator() {
       const typingIndicator = document.getElementById('typing-indicator');
       if (typingIndicator) {
@@ -771,7 +738,6 @@
       }
     }
 
-    // Функция для извлечения контента из ответа
     function extractContent(data) {
       if (typeof data === 'string') {
         try {
@@ -805,14 +771,12 @@
 
       const chatBox = document.getElementById('chat-box');
 
-      // Сообщение пользователя
       const userMsg = document.createElement('div');
       userMsg.className = 'message user';
       userMsg.textContent = message;
       chatBox.appendChild(userMsg);
-      chatBox.scrollTop = chatBox.scrollHeight; // автоматическая прокрутка вниз
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
 
-      // Очистка и блокировка
       input.value = '';
       input.disabled = true;
       sendBtn.disabled = true;
@@ -859,7 +823,7 @@
         });
 
         chatBox.appendChild(botMsg);
-        chatBox.scrollTop = chatBox.scrollHeight; // автоматическая прокрутка вниз
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
 
       } catch (e) {
         console.error('Ошибка:', e);
@@ -869,20 +833,18 @@
         botMsg.className = 'message bot';
         botMsg.innerHTML = translations[currentLanguage].error;
         chatBox.appendChild(botMsg);
-        chatBox.scrollTop = chatBox.scrollHeight;
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
       }
 
-      // Разблокировать ввод
       input.disabled = false;
       sendBtn.disabled = false;
       sendBtn.innerHTML = `<span class="send-icon">📤</span> <span id="send-text">${translations[currentLanguage].send}</span>`;
       input.focus();
     }
 
-    // Прокрутка вниз при загрузке
     window.addEventListener('load', function() {
       const chatBox = document.getElementById('chat-box');
-      chatBox.scrollTop = chatBox.scrollHeight;
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
       document.getElementById('user-input').focus();
     });
   </script>
