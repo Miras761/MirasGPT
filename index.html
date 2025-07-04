@@ -264,7 +264,7 @@
     }
 
     .scroll-btn {
-      background: rgba(0, 255, 136, 0.9);
+      background: #00ff88;
       color: #001a00;
       border: none;
       border-radius: 50%;
@@ -278,32 +278,19 @@
       font-weight: bold;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       transition: all 0.3s ease;
-      opacity: 0;
-      pointer-events: none;
-      transform: scale(0.8);
-    }
-
-    .scroll-btn.visible {
-      opacity: 1;
+      opacity: 0.8;
       pointer-events: auto;
       transform: scale(1);
     }
 
     .scroll-btn:hover {
-      background: rgba(0, 255, 136, 1);
+      background: #00cc66;
       transform: scale(1.1);
+      opacity: 1;
     }
 
     .scroll-btn:active {
       transform: scale(0.95);
-    }
-
-    #scroll-up-btn {
-      animation-delay: 0.1s;
-    }
-
-    #scroll-down-btn {
-      animation-delay: 0.2s;
     }
 
     /* Индикатор позиции прокрутки */
@@ -549,8 +536,6 @@
     // Функции для управления прокруткой
     function updateScrollIndicators() {
       const chatBox = document.getElementById('chat-box');
-      const scrollUpBtn = document.getElementById('scroll-up-btn');
-      const scrollDownBtn = document.getElementById('scroll-down-btn');
       const scrollIndicator = document.getElementById('scroll-indicator');
       const scrollIndicatorThumb = document.getElementById('scroll-indicator-thumb');
       
@@ -559,16 +544,10 @@
       const clientHeight = chatBox.clientHeight;
       const maxScroll = scrollHeight - clientHeight;
       
-      // Показать кнопки только если есть что прокручивать
+      // Показать индикатор только если есть что прокручивать
       const hasScroll = scrollHeight > clientHeight;
       
       if (hasScroll) {
-        // Показать кнопку "вверх" если не в самом верху
-        scrollUpBtn.classList.toggle('visible', scrollTop > 20);
-        
-        // Показать кнопку "вниз" если не в самом низу
-        scrollDownBtn.classList.toggle('visible', scrollTop < maxScroll - 20);
-        
         // Показать индикатор прокрутки
         scrollIndicator.classList.add('visible');
         
@@ -580,9 +559,7 @@
         scrollIndicatorThumb.style.height = thumbHeight + '%';
         scrollIndicatorThumb.style.transform = `translateY(${thumbPosition}%)`;
       } else {
-        // Скрыть все элементы управления прокруткой
-        scrollUpBtn.classList.remove('visible');
-        scrollDownBtn.classList.remove('visible');
+        // Скрыть индикатор прокрутки
         scrollIndicator.classList.remove('visible');
       }
     }
