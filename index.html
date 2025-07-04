@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GreenBot 🤖</title>
   <style>
     * {
@@ -16,9 +16,6 @@
       height: 100%;
       overflow: hidden;
       touch-action: manipulation;
-    }
-
-    body {
       background: linear-gradient(145deg, #001a00 0%, #002a00 50%, #001a00 100%);
       color: #00ff88;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -52,25 +49,8 @@
       font-size: clamp(20px, 5vw, 26px);
       font-weight: bold;
       color: #00ff88;
-      box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+      box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
       position: relative;
-      z-index: 10;
-    }
-
-    header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
-      animation: shimmer 3s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
     }
 
     .bot-status {
@@ -96,6 +76,23 @@
       50% { transform: scale(1.2); }
     }
 
+    .language-selector {
+      position: absolute;
+      top: clamp(10px, 2vw, 15px);
+      right: clamp(10px, 2vw, 20px);
+    }
+
+    #language-select {
+      background: rgba(0, 34, 0, 0.8);
+      color: #00ff88;
+      border: 2px solid rgba(0, 255, 136, 0.3);
+      border-radius: 15px;
+      padding: clamp(6px, 2vw, 8px);
+      font-size: clamp(12px, 3vw, 14px);
+      cursor: pointer;
+      outline: none;
+    }
+
     #chat-container {
       flex: 1;
       display: flex;
@@ -104,7 +101,6 @@
       width: 100%;
       margin: 0 auto;
       padding: 0 clamp(5px, 2vw, 10px);
-      overflow: hidden;
     }
 
     #chat-box {
@@ -113,11 +109,9 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      background: linear-gradient(180deg, rgba(0, 34, 0, 0.3) 0%, rgba(0, 34, 0, 0.5) 100%);
-      backdrop-filter: blur(10px);
+      gap: 10px;
+      background: rgba(0, 34, 0, 0.5);
       border-radius: 20px 20px 0 0;
-      margin-bottom: 0;
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
@@ -140,70 +134,22 @@
 
     .message {
       max-width: 80%;
-      padding: clamp(10px, 2vw, 12px) clamp(12px, 3vw, 16px);
-      border-radius: 20px;
+      padding: clamp(8px, 2vw, 10px) clamp(10px, 3vw, 12px);
+      border-radius: 15px;
       line-height: 1.5;
-      position: relative;
-      animation: messageSlide 0.3s ease-out;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    @keyframes messageSlide {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     .user {
       align-self: flex-end;
       background: linear-gradient(135deg, #005500, #007700);
       color: #ffffff;
-      border-bottom-right-radius: 5px;
-    }
-
-    .user::before {
-      content: '👤';
-      position: absolute;
-      right: -10px;
-      top: -10px;
-      background: #007700;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     .bot {
       align-self: flex-start;
       background: linear-gradient(135deg, #00aa55, #00cc66);
       color: #001a00;
-      border-bottom-left-radius: 5px;
-      font-weight: 500;
-    }
-
-    .bot::before {
-      content: '🤖';
-      position: absolute;
-      left: -10px;
-      top: -10px;
-      background: #00cc66;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
     .code-block {
@@ -211,8 +157,6 @@
       border: 1px solid rgba(0, 255, 136, 0.3);
       border-radius: 10px;
       margin: 10px 0;
-      position: relative;
-      overflow: hidden;
     }
 
     .code-header {
@@ -220,7 +164,6 @@
       padding: 8px 15px;
       display: flex;
       justify-content: space-between;
-      align-items: center;
       border-bottom: 1px solid rgba(0, 255, 136, 0.2);
     }
 
@@ -228,7 +171,6 @@
       color: #00ff88;
       font-size: clamp(10px, 2.5vw, 12px);
       font-weight: bold;
-      text-transform: uppercase;
     }
 
     .copy-btn {
@@ -239,26 +181,18 @@
       padding: 4px 8px;
       font-size: clamp(10px, 2.5vw, 11px);
       cursor: pointer;
-      transition: all 0.3s ease;
     }
 
     .copy-btn:hover {
       background: rgba(0, 255, 136, 0.3);
-      border-color: #00ff88;
-    }
-
-    .copy-btn.copied {
-      background: rgba(0, 255, 136, 0.5);
-      color: #001a00;
     }
 
     .code-content {
       padding: 15px;
       background: rgba(0, 17, 0, 0.8);
       color: #00ff88;
-      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-family: 'Consolas', monospace;
       font-size: clamp(12px, 3vw, 14px);
-      line-height: 1.4;
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-x: auto;
@@ -269,62 +203,29 @@
     .lua-comment { color: #95a5a6; font-style: italic; }
     .lua-function { color: #f39c12; }
 
-    .typing-indicator {
-      align-self: flex-start;
-      background: linear-gradient(135deg, #00aa55, #00cc66);
-      color: #001a00;
-      border-radius: 20px;
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      animation: messageSlide 0.3s ease-out;
-    }
-
-    .typing-dot {
-      width: 8px;
-      height: 8px;
-      background: #001a00;
-      border-radius: 50%;
-      animation: typing 1.4s infinite;
-    }
-
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes typing {
-      0%, 60%, 100% { transform: translateY(0); }
-      30% { transform: translateY(-10px); }
-    }
-
     #input-area {
       display: flex;
       align-items: center;
-      padding: clamp(10px, 3vw, 15px);
-      background: linear-gradient(90deg, rgba(0, 34, 0, 0.8), rgba(0, 34, 0, 0.9));
-      backdrop-filter: blur(10px);
+      padding: clamp(8px, 2vw, 10px);
+      background: rgba(0, 34, 0, 0.8);
       border-radius: 0 0 20px 20px;
-      gap: clamp(8px, 2vw, 12px);
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+      gap: clamp(5px, 2vw, 8px);
     }
 
     #user-input {
       flex: 1;
-      padding: clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 15px);
+      padding: clamp(8px, 2vw, 10px);
       background: rgba(0, 34, 0, 0.8);
       color: #00ff88;
-      border: 2px solid rgba(0, 255, 136, 0.3);
-      border-radius: 25px;
+      border: 2px solid #00ff88;
+      border-radius: 20px;
       font-size: clamp(14px, 3.5vw, 16px);
       outline: none;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
     }
 
     #user-input:focus {
-      border-color: #00ff88;
-      box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-      transform: scale(1.02);
+      border-color: #00cc66;
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
     }
 
     #user-input::placeholder {
@@ -335,101 +236,45 @@
       background: linear-gradient(135deg, #00ff88, #00cc66);
       color: #001a00;
       border: none;
-      padding: clamp(10px, 2.5vw, 12px) clamp(15px, 3vw, 20px);
-      border-radius: 25px;
+      padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 15px);
+      border-radius: 20px;
       cursor: pointer;
-      font-weight: bold;
       font-size: clamp(14px, 3.5vw, 16px);
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-      overflow: hidden;
+      font-weight: bold;
     }
 
     #send-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
-    }
-
-    #send-btn:active {
-      transform: translateY(0);
+      background: linear-gradient(135deg, #00cc66, #00ff88);
     }
 
     #send-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      transform: none;
-    }
-
-    .send-icon {
-      font-size: clamp(16px, 4vw, 18px);
-      transition: transform 0.3s ease;
-    }
-
-    #send-btn:hover .send-icon {
-      transform: translateX(3px);
     }
 
     #scroll-down-btn {
       position: fixed;
-      bottom: 80px;
-      right: 20px;
-      background: linear-gradient(135deg, #00ff88, #00cc66);
+      bottom: 60px;
+      right: 15px;
+      background: #00ff88;
       color: #001a00;
       border: none;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0, 255, 136, 0.3);
-      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.3s;
     }
 
     #scroll-down-btn.visible {
       opacity: 1;
       pointer-events: auto;
-    }
-
-    #scroll-down-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.4);
-    }
-
-    .language-selector {
-      position: absolute;
-      top: clamp(10px, 2vw, 15px);
-      right: clamp(10px, 2vw, 20px);
-    }
-
-    #language-select {
-      background: rgba(0, 34, 0, 0.8);
-      color: #00ff88;
-      border: 2px solid rgba(0, 255, 136, 0.3);
-      border-radius: 15px;
-      padding: clamp(6px, 2vw, 8px) clamp(10px, 2.5vw, 12px);
-      font-size: clamp(12px, 3vw, 14px);
-      cursor: pointer;
-      outline: none;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(5px);
-    }
-
-    #language-select:hover {
-      border-color: #00ff88;
-      box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-    }
-
-    #language-select option {
-      background: #001a00;
-      color: #00ff88;
     }
 
     .copy-notification {
@@ -450,37 +295,28 @@
       20%, 80% { transform: translateX(0); opacity: 1; }
     }
 
-    /* Адаптивность */
-    @media (max-width: 1024px) {
-      #chat-container { padding: 0 8px; }
-      .message { max-width: 85%; }
-      #input-area { padding: clamp(8px, 2vw, 12px); }
-      #user-input { font-size: clamp(13px, 3.5vw, 15px); }
-      #send-btn { font-size: clamp(13px, 3.5vw, 15px); }
-    }
-
     @media (max-width: 768px) {
-      header { font-size: clamp(18px, 5vw, 22px); }
-      .message { max-width: 90%; padding: 10px 14px; }
-      #input-area { gap: 8px; }
-      #scroll-down-btn { bottom: 70px; width: 36px; height: 36px; }
+      #chat-container { padding: 0 5px; }
+      .message { max-width: 90%; font-size: clamp(12px, 3vw, 14px); }
+      #input-area { padding: 8px; }
+      #user-input { padding: 8px; }
+      #send-btn { padding: 8px 12px; }
+      #scroll-down-btn { bottom: 50px; width: 32px; height: 32px; }
     }
 
     @media (max-width: 480px) {
-      header { padding: 10px; }
-      .bot-status { font-size: clamp(10px, 3vw, 12px); }
-      #chat-box { padding: 8px; }
-      .message { max-width: 95%; font-size: clamp(12px, 3.5vw, 14px); }
-      #user-input { padding: 8px 12px; }
-      #send-btn { padding: 8px 15px; }
-      #scroll-down-btn { bottom: 60px; width: 32px; height: 32px; }
+      header { font-size: clamp(16px, 4vw, 20px); }
+      #chat-box { padding: 5px; }
+      .message { max-width: 95%; }
+      #user-input { font-size: clamp(12px, 3vw, 14px); }
+      #send-btn { font-size: clamp(12px, 3vw, 14px); }
       .language-selector { top: 8px; right: 10px; }
       #language-select { padding: 6px 10px; font-size: clamp(10px, 3vw, 12px); }
     }
   </style>
 </head>
 <body>
-  <header class="glow-effect">
+  <header id="header">
     🤖 GreenBot — ваш AI помощник
     <div class="bot-status">
       <div class="status-indicator"></div>
@@ -494,27 +330,16 @@
       </select>
     </div>
   </header>
-
   <div id="chat-container">
     <div id="chat-box">
-      <div class="message bot">
-        Привет! Я — GreenBot 🌱<br>
-        Как могу помочь? Задавайте любые вопросы!
-      </div>
+      <div class="message bot">Привет! Я — GreenBot 🌱<br>Как могу помочь? Задавайте любые вопросы!</div>
     </div>
-
     <div id="input-area">
       <input type="text" id="user-input" placeholder="Напишите сообщение..." />
-      <button id="send-btn" onclick="sendMessage()">
-        <span class="send-icon">📤</span>
-        <span id="send-text">Отправить</span>
-      </button>
+      <button id="send-btn">📤 Отправить</button>
     </div>
   </div>
-
-  <button id="scroll-down-btn" title="Прокрутить вниз">
-    ↓
-  </button>
+  <button id="scroll-down-btn">↓</button>
 
   <script>
     const translations = {
@@ -525,8 +350,8 @@
         send: "Отправить",
         sending: "Отправляется...",
         greeting: "Привет! Я — GreenBot 🌱<br>Как могу помочь? Задавайте любые вопросы!",
-        error: "⚠️ <strong>Произошла ошибка:</strong><br>Проверьте интернет-соединение или попробуйте позже.",
-        noResponse: "Извините, ответ не получен. Попробуйте еще раз.",
+        error: "⚠️ Ошибка: Проверьте интернет или API.",
+        noResponse: "Извините, ответ не получен. Попробуйте ещё раз.",
         copyBtn: "Копировать",
         copied: "Скопировано!"
       },
@@ -536,8 +361,8 @@
         placeholder: "Хабарлама жазыңыз...",
         send: "Жіберу",
         sending: "Жіберілуде...",
-        greeting: "Сәлем! Мен — GreenBot 🌱<br>Сізге қалай көмектесе аламын? Кез келген сұрақ қоя аласыз!",
-        error: "⚠️ <strong>Қате орын алды:</strong><br>Интернет байланысын тексеріңіз немесе кейінірек қайталаңыз.",
+        greeting: "Сәлем! Мен — GreenBot 🌱<br>Сізге қалай көмектесе аламын?",
+        error: "⚠️ Қате: Интернетті немесе API-ды тексеріңіз.",
         noResponse: "Кешіріңіз, жауап алынбады. Қайталап көріңіз.",
         copyBtn: "Көшіру",
         copied: "Көшірілді!"
@@ -548,11 +373,9 @@
         placeholder: "Type your message...",
         send: "Send",
         sending: "Sending...",
-        greeting: "Hello! I'm GreenBot 🌱<br>How can I help you? Feel free to ask any questions!",
-        error: "⚠️ <strong>Error occurred:</strong><br>Check your internet connection or try again later.",
-        noResponse: "Sorry, no responsegerufen
-
-System: received. Please try again.",
+        greeting: "Hello! I'm GreenBot 🌱<br>How can I help you?",
+        error: "⚠️ Error: Check your internet or API.",
+        noResponse: "Sorry, no response received. Try again.",
         copyBtn: "Copy",
         copied: "Copied!"
       }
@@ -565,65 +388,39 @@ System: received. Please try again.",
       notification.className = 'copy-notification';
       notification.textContent = translations[currentLanguage].copied;
       document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.remove();
-      }, 2000);
+      setTimeout(() => notification.remove(), 2000);
     }
 
     function copyCode(button, codeText) {
       navigator.clipboard.writeText(codeText).then(() => {
-        const originalText = button.textContent;
         button.textContent = translations[currentLanguage].copied;
-        button.classList.add('copied');
         showCopyNotification();
-        
-        setTimeout(() => {
-          button.textContent = originalText;
-          button.classList.remove('copied');
-        }, 2000);
-      }).catch(err => {
-        console.error('Ошибка копирования:', err);
-      });
+        setTimeout(() => button.textContent = translations[currentLanguage].copyBtn, 2000);
+      }).catch(err => console.error('Ошибка копирования:', err));
     }
 
     function formatBotResponse(text) {
       const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
-      let match;
       let parts = [];
       let lastIndex = 0;
-      
+      let match;
+
       while ((match = codeBlockRegex.exec(text)) !== null) {
         if (match.index > lastIndex) {
-          parts.push({
-            type: 'text',
-            content: text.substring(lastIndex, match.index)
-          });
+          parts.push({ type: 'text', content: text.substring(lastIndex, match.index) });
         }
-        
-        parts.push({
-          type: 'code',
-          language: match[1] || 'lua',
-          content: match[2].trim()
-        });
-        
+        parts.push({ type: 'code', language: match[1] || 'lua', content: match[2].trim() });
         lastIndex = match.index + match[0].length;
       }
-      
+
       if (lastIndex < text.length) {
-        parts.push({
-          type: 'text',
-          content: text.substring(lastIndex)
-        });
+        parts.push({ type: 'text', content: text.substring(lastIndex) });
       }
-      
+
       if (parts.length === 0) {
-        parts.push({
-          type: 'text',
-          content: text
-        });
+        parts.push({ type: 'text', content: text });
       }
-      
+
       return parts;
     }
 
@@ -634,36 +431,31 @@ System: received. Please try again.",
         const regex = new RegExp(`\\b${keyword}\\b`, 'g');
         highlighted = highlighted.replace(regex, `<span class="lua-keyword">${keyword}</span>`);
       });
-      
       highlighted = highlighted.replace(/(["'])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="lua-string">$1$2$1</span>');
       highlighted = highlighted.replace(/--.*$/gm, '<span class="lua-comment">$&</span>');
       highlighted = highlighted.replace(/\b(\w+)\s*(?=\()/g, '<span class="lua-function">$1</span>');
-      
       return highlighted;
     }
 
     function createCodeBlock(language, code) {
-      const codeId = 'code_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
       const codeBlock = document.createElement('div');
       codeBlock.className = 'code-block';
       const highlightedCode = language === 'lua' ? highlightLuaCode(code) : code;
-      
       codeBlock.innerHTML = `
         <div class="code-header">
           <span class="code-language">${language}</span>
-          <button class="copy-btn" onclick="copyCode(this, \`${code.replace(/`/g, '\\`')}\`)">${translations[currentLanguage].copyBtn}</button>
+          <button class="copy-btn">${translations[currentLanguage].copyBtn}</button>
         </div>
         <div class="code-content">${highlightedCode}</div>
       `;
-      
+      codeBlock.querySelector('.copy-btn').addEventListener('click', () => copyCode(codeBlock.querySelector('.copy-btn'), code));
       return codeBlock;
     }
 
     function changeLanguage(lang) {
       currentLanguage = lang;
       const t = translations[lang];
-      
-      document.querySelector('header').innerHTML = `
+      document.getElementById('header').innerHTML = `
         ${t.title}
         <div class="bot-status">
           <div class="status-indicator"></div>
@@ -677,99 +469,19 @@ System: received. Please try again.",
           </select>
         </div>
       `;
-      
       document.getElementById('user-input').placeholder = t.placeholder;
-      document.getElementById('send-text').textContent = t.send;
-      
-      const firstBotMessage = document.querySelector('.message.bot');
-      if (firstBotMessage) {
-        firstBotMessage.innerHTML = t.greeting;
-      }
-      
-      document.getElementById('language-select').addEventListener('change', function(e) {
-        changeLanguage(e.target.value);
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('language-select').addEventListener('change', function(e) {
-        changeLanguage(e.target.value);
-      });
-
-      const chatBox = document.getElementById('chat-box');
-      const scrollDownBtn = document.getElementById('scroll-down-btn');
-
-      // Показать/скрыть кнопку прокрутки вниз
-      chatBox.addEventListener('scroll', function() {
-        const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 10;
-        scrollDownBtn.classList.toggle('visible', !isAtBottom);
-      });
-
-      // Прокрутка вниз при клике на кнопку
-      scrollDownBtn.addEventListener('click', function() {
-        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
-      });
-    });
-
-    document.getElementById('user-input').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
-    });
-
-    function showTypingIndicator() {
-      const chatBox = document.getElementById('chat-box');
-      const typingDiv = document.createElement('div');
-      typingDiv.className = 'typing-indicator';
-      typingDiv.id = 'typing-indicator';
-      typingDiv.innerHTML = `
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-      `;
-      chatBox.appendChild(typingDiv);
-      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
-    }
-
-    function hideTypingIndicator() {
-      const typingIndicator = document.getElementById('typing-indicator');
-      if (typingIndicator) {
-        typingIndicator.remove();
-      }
-    }
-
-    function extractContent(data) {
-      if (typeof data === 'string') {
-        try {
-          const parsed = JSON.parse(data);
-          return extractContent(parsed);
-        } catch (e) {
-          return data;
-        }
-      }
-
-      if (typeof data === 'object' && data !== null) {
-        if (data.content) return data.content;
-        if (data.message) return data.message;
-        if (data.response) return data.response;
-        if (data.text) return data.text;
-
-        if (Array.isArray(data) && data.length > 0) {
-          return extractContent(data[0]);
-        }
-      }
-
-      return null;
+      document.getElementById('send-btn').innerHTML = `📤 ${t.send}`;
+      document.querySelector('.message.bot').innerHTML = t.greeting;
+      document.getElementById('language-select').addEventListener('change', (e) => changeLanguage(e.target.value));
     }
 
     async function sendMessage() {
       const input = document.getElementById('user-input');
       const sendBtn = document.getElementById('send-btn');
+      const chatBox = document.getElementById('chat-box');
       const message = input.value.trim();
 
       if (!message) return;
-
-      const chatBox = document.getElementById('chat-box');
 
       const userMsg = document.createElement('div');
       userMsg.className = 'message user';
@@ -780,9 +492,7 @@ System: received. Please try again.",
       input.value = '';
       input.disabled = true;
       sendBtn.disabled = true;
-      sendBtn.innerHTML = `<span class="send-icon">⏳</span> <span>${translations[currentLanguage].sending}</span>`;
-
-      showTypingIndicator();
+      sendBtn.innerHTML = `⏳ ${translations[currentLanguage].sending}`;
 
       try {
         const res = await fetch("https://hook.eu2.make.com/4crgw0g7k5uu2lt2mwou7jhgt7ya70o7", {
@@ -791,25 +501,14 @@ System: received. Please try again.",
           body: JSON.stringify({ message })
         });
 
-        let data;
-        const contentType = res.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          const jsonData = await res.json();
-          data = extractContent(jsonData);
-        } else {
-          const textData = await res.text();
-          data = extractContent(textData);
-        }
+        const data = await res.text();
+        console.log("API ответ:", data); // Для отладки
 
-        hideTypingIndicator();
-
-        if (!data || data.trim() === '' || data.toLowerCase() === 'accepted') {
-          data = translations[currentLanguage].noResponse;
-        }
+        if (!res.ok) throw new Error(`HTTP ошибка: ${res.status} ${res.statusText}`);
+        if (!data || data.trim() === '') throw new Error("Пустой ответ от API");
 
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';
-
         const parts = formatBotResponse(data);
         parts.forEach(part => {
           if (part.type === 'text') {
@@ -817,35 +516,50 @@ System: received. Please try again.",
             textDiv.innerHTML = part.content.replace(/\n/g, '<br>');
             botMsg.appendChild(textDiv);
           } else if (part.type === 'code') {
-            const codeBlock = createCodeBlock(part.language, part.content);
-            botMsg.appendChild(codeBlock);
+            botMsg.appendChild(createCodeBlock(part.language, part.content));
           }
         });
-
         chatBox.appendChild(botMsg);
-        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
-
       } catch (e) {
-        console.error('Ошибка:', e);
-        hideTypingIndicator();
-
+        console.error("Ошибка API:", e.message); // Для отладки
         const botMsg = document.createElement('div');
         botMsg.className = 'message bot';
-        botMsg.innerHTML = translations[currentLanguage].error;
+        botMsg.textContent = `${translations[currentLanguage].error} ${e.message}`;
         chatBox.appendChild(botMsg);
-        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
       }
 
+      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
       input.disabled = false;
       sendBtn.disabled = false;
-      sendBtn.innerHTML = `<span class="send-icon">📤</span> <span id="send-text">${translations[currentLanguage].send}</span>`;
+      sendBtn.innerHTML = `📤 ${translations[currentLanguage].send}`;
       input.focus();
     }
 
-    window.addEventListener('load', function() {
+    document.addEventListener('DOMContentLoaded', () => {
       const chatBox = document.getElementById('chat-box');
+      const scrollDownBtn = document.getElementById('scroll-down-btn');
+      const sendBtn = document.getElementById('send-btn');
+      const input = document.getElementById('user-input');
+      const languageSelect = document.getElementById('language-select');
+
+      sendBtn.addEventListener('click', sendMessage);
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+      });
+
+      chatBox.addEventListener('scroll', () => {
+        const isAtBottom = chatBox.scrollHeight - chatBox.scrollTop <= chatBox.clientHeight + 10;
+        scrollDownBtn.classList.toggle('visible', !isAtBottom);
+      });
+
+      scrollDownBtn.addEventListener('click', () => {
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      });
+
+      languageSelect.addEventListener('change', (e) => changeLanguage(e.target.value));
+
       chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
-      document.getElementById('user-input').focus();
+      input.focus();
     });
   </script>
 </body>
