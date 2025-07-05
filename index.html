@@ -12,15 +12,18 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    html, body {
+    html {
       height: 100%;
-      overflow: hidden;
-      touch-action: manipulation;
+    }
+
+    body {
+      height: 100%;
       background: linear-gradient(145deg, #001a00 0%, #002a00 50%, #001a00 100%);
       color: #00ff88;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       display: flex;
       flex-direction: column;
+      overflow: auto;
     }
 
     body::before {
@@ -51,6 +54,7 @@
       color: #00ff88;
       box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
       position: relative;
+      z-index: 100;
     }
 
     .bot-status {
@@ -116,6 +120,7 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
       scrollbar-color: #00ff88 rgba(0, 34, 0, 0.3);
+      min-height: 0;
     }
 
     #chat-box::-webkit-scrollbar {
@@ -252,7 +257,6 @@
       cursor: not-allowed;
     }
 
-    /* Кнопки прокрутки */
     .scroll-buttons {
       position: fixed;
       right: 15px;
@@ -261,6 +265,12 @@
       flex-direction: column;
       gap: 8px;
       z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+
+    .scroll-buttons.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .scroll-btn {
@@ -293,7 +303,6 @@
       transform: scale(0.95);
     }
 
-    /* Индикатор позиции прокрутки */
     .scroll-indicator {
       position: fixed;
       right: 20px;
@@ -387,14 +396,12 @@
       <button id="send-btn">📤 Отправить</button>
     </div>
   </div>
-  
-  <!-- Кнопки прокрутки -->
-  <div class="scroll-buttons">
+
+  <div class="scroll-buttons" id="scroll-buttons">
     <button id="scroll-up-btn" class="scroll-btn">↑</button>
     <button id="scroll-down-btn" class="scroll-btn">↓</button>
   </div>
-  
-  <!-- Индикатор прокрутки -->
+
   <div class="scroll-indicator" id="scroll-indicator">
     <div class="scroll-indicator-thumb" id="scroll-indicator-thumb"></div>
   </div>
@@ -529,29 +536,30 @@
       `;
       document.getElementById('user-input').placeholder = t.placeholder;
       document.getElementById('send-btn').innerHTML = `📤 ${t.send}`;
-      document.querySelector('.message.bot').innerHTML = t.greeting;
+      const botMessage = document.querySelector('.message.bot');
+      if (botMessage) {
+        botMessage.innerHTML = t.greeting;
+      }
       document.getElementById('language-select').addEventListener('change', (e) => changeLanguage(e.target.value));
     }
 
-    // Функции для управления прокруткой
     function updateScrollIndicators() {
       const chatBox = document.getElementById('chat-box');
       const scrollIndicator = document.getElementById('scroll-indicator');
       const scrollIndicatorThumb = document.getElementById('scroll-indicator-thumb');
+      const scrollButtons = document.getElementById('scroll-buttons');
       
       const scrollTop = chatBox.scrollTop;
       const scrollHeight = chatBox.scrollHeight;
       const clientHeight = chatBox.clientHeight;
       const maxScroll = scrollHeight - clientHeight;
       
-      // Показать индикатор только если есть что прокручивать
       const hasScroll = scrollHeight > clientHeight;
       
       if (hasScroll) {
-        // Показать индикатор прокрутки
         scrollIndicator.classList.add('visible');
+        scrollButtons.classList.remove('hidden');
         
-        // Обновить позицию индикатора
         const scrollPercent = scrollTop / maxScroll;
         const thumbHeight = Math.max(20, (clientHeight / scrollHeight) * 100);
         const thumbPosition = scrollPercent * (100 - thumbHeight);
@@ -559,19 +567,29 @@
         scrollIndicatorThumb.style.height = thumbHeight + '%';
         scrollIndicatorThumb.style.transform = `translateY(${thumbPosition}%)`;
       } else {
-        // Скрыть индикатор прокрутки
         scrollIndicator.classList.remove('visible');
+        scrollButtons.classList.add('hidden');
       }
     }
 
     function scrollToTop() {
+      console.log('Scroll Up clicked');
       const chatBox = document.getElementById('chat-box');
-      chatBox.scrollTo({ top: 0, behavior: 'smooth' });
+      try {
+        chatBox.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e) {
+        chatBox.scrollTop = 0;
+      }
     }
 
     function scrollToBottom() {
+      console.log('Scroll Down clicked');
       const chatBox = document.getElementById('chat-box');
-      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      try {
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      } catch (e) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
     }
 
     async function sendMessage() {
@@ -586,7 +604,11 @@
       userMsg.className = 'message user';
       userMsg.textContent = message;
       chatBox.appendChild(userMsg);
-      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      try {
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      } catch (e) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
 
       input.value = '';
       input.disabled = true;
@@ -627,11 +649,16 @@
         chatBox.appendChild(botMsg);
       }
 
-      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      try {
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      } catch (e) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
       input.disabled = false;
       sendBtn.disabled = false;
       sendBtn.innerHTML = `📤 ${translations[currentLanguage].send}`;
       input.focus();
+      updateScrollIndicators();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -642,26 +669,24 @@
       const scrollUpBtn = document.getElementById('scroll-up-btn');
       const scrollDownBtn = document.getElementById('scroll-down-btn');
 
-      // Обработчики событий
       sendBtn.addEventListener('click', sendMessage);
       input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') sendMessage();
       });
 
-      // Обработчики прокрутки
-      chatBox.addEventListener('scroll', updateScrollIndicators);
       scrollUpBtn.addEventListener('click', scrollToTop);
       scrollDownBtn.addEventListener('click', scrollToBottom);
 
-      // Обработчик изменения языка
+      chatBox.addEventListener('scroll', updateScrollIndicators);
       languageSelect.addEventListener('change', (e) => changeLanguage(e.target.value));
-
-      // Обработчик изменения размера окна
       window.addEventListener('resize', updateScrollIndicators);
 
-      // Начальная инициализация
       updateScrollIndicators();
-      chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      try {
+        chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+      } catch (e) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
       input.focus();
     });
   </script>
